@@ -7,13 +7,14 @@
   <link rel="stylesheet" href="./static/gui.css">
   <script src="./static/numeric-1.2.6.min.js" type="text/javascript"></script>
 <!--  <script src="/static/lti.js"></script>-->
-</head>
-<body>
-<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 <script type="text/x-mathjax-config">
 MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
 </script>
+</head>
+<body>
+
 
 
 <center>
@@ -49,7 +50,6 @@ $("#E_input").keyup(do_update);
 </span>
 
 <script>
-$(document).ready(function(){
 var states_ahead = "\\begin{bmatrix} x_1\\\\x_2\\\\x_3\\end{bmatrix} \\frac{d}{dt}";
 var states = "\\begin{bmatrix}x_1\\\\x_2\\\\x_3\\end{bmatrix}";
 
@@ -134,26 +134,27 @@ var render_display_string =function(matrix) {
   }
   if (matrix =="A" || matrix=="E" || matrix == "B"){
     $("#displayed_eq1").html("<span class='cs_math_to_render'>"+display_string_E+display_string_A+display_string_B+"</span>");
-    //MathJax.Hub.Queue(["Typeset",MathJax.Hub,"#displayed_eq1"]);
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,"#displayed_eq1"]);
   }else{
     $("#displayed_eq2").html("<span class='cs_math_to_render'>"+display_string_C+display_string_D+"</span>");
-    //MathJax.Hub.Queue(["Typeset",MathJax.Hub,"#displayed_eq2"]);
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,"#displayed_eq2"]);
   }
 
 };
-$("#A").keyup(function(){
+$("#A_input").keyup(function(){
+	console.log("A");
   render_display_string("A");
 });
-$("#B").keyup(function(){
+$("#B_input").keyup(function(){
   render_display_string("B");
 });
-$("#C").keyup(function(){
+$("#C_input").keyup(function(){
   render_display_string("C");
 });
-$("#D").keyup(function(){
+$("#D_input").keyup(function(){
   render_display_string("D");
 });
-$("#E").keyup(function(){
+$("#E_input").keyup(function(){
   render_display_string("E");
 });
 render_display_string("A");
@@ -161,6 +162,6 @@ render_display_string("B");
 render_display_string("C");
 render_display_string("D");
 render_display_string("E");
-});
+
 </script>
 </body>

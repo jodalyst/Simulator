@@ -4,6 +4,7 @@
   <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script src="./static/time_series.js" ></script>
+  <link rel="stylesheet" href="./static/eq.css">
   <link rel="stylesheet" href="./static/gui.css">
   <script src="./static/numeric-1.2.6.min.js" type="text/javascript"></script>
 <!--  <script src="/static/lti.js"></script>-->
@@ -15,8 +16,15 @@ MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
 </head>
 <body>
 
+<h3>Instructions</h3>
+<p>Add your matrices in for the $\textbf{E}$, $\textbf{A}$, $\textbf{B}$, $\textbf{C}$, and $\textbf{D}$ matrices.  In the case of the the $\textbf{E}$ and $\textbf{D}$ matrices, leaving the field blank will default to the implied identity matrix $\textbf{I}$ and not displayed explicitly, and the 0 matrix, $\textbf{0}$, and not displayed.</p>.
 
-
+<p>
+\(\textbf{x}\): <input type="text" size="50" value="[[x_1],[x_2],[x_3]]" name="x_input" id="x_input" class="matrix" maxlength="100" /><br></br>
+\(\textbf{y}\): <input type="text" size="50" value="[\theta]" name="y_input" id="y_input" class="matrix" maxlength="100" /><br></br>
+\(\textbf{u}\): <input type="text" size="50" value="[v_i]" name="u_input" id="u_input" class="matrix" maxlength="100" /><br></br>
+</p>
+<p>
 <center>
 \(\textbf{E}\): <input type="text" size="50" value="[[1,0,0],[0,4,0],[0,0,1]]" name="E_input" id="E_input" class="matrix" maxlength="100" /><br></br>
 \(\textbf{A}\): <input type="text" size="50" value="[[1,0,2],[5,4,2],[0,0,1]]" name="A_input" id="A_input" class="matrix" maxlength="100" /><br></br>
@@ -24,7 +32,7 @@ MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
 \(\textbf{C}\): <input type="text" size="50" value="[[1,0,3]]" name="C_input" id="C_input" class="matrix" maxlength="100" /><br></br>
 \(\textbf{D}\): <input type="text" size="50" value="[[0]]" name="D_input" id="D_input" class="matrix" maxlength="100" /><br></br>
 </center>
-
+</p>
 <!-- <script type="text/javascript">
 function do_update(){
         var a = $('#A_input').val();
@@ -122,7 +130,11 @@ var render_display_string =function(matrix) {
   if (matrix =="A"){
     display_string_A= display_string+states;
   }else if(matrix =="E"){
-    display_string_E = display_string+states_ahead+"=";
+    if (display_string != ""){
+        display_string_E = display_string+states_ahead+"=";
+    }else{
+        display_string_E = states_ahead+"="
+    }
   }else if(matrix =="B"){
     display_string_B = "+"+display_string+inputs;
   }else if(matrix =="C"){

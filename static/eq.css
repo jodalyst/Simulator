@@ -1,0 +1,24 @@
+.eq_display_area{
+    border: 1px solid;
+    border-radius: 5px;
+    margin: 30px 30px 30px 30px;
+  }
+.sim_area{
+    border: 1px solid;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 30px 30px 30px 30px;
+    width: 840px
+  }
+
+.eq_display_area p {
+  text-align: center;
+  margin: 30px 30px 30px 30px;
+}
+.eq_display_area {
+  display:block;
+}
+
+.matrix{
+    width: 300px;
+}

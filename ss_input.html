@@ -18,11 +18,11 @@ MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
 
 
 <center>
-\(\textbf{E}\): <input type="text" size="50" value="" name="E_input" id="E_input" class="matrix" maxlength="100" /><br></br>
-\(\textbf{A}\): <input type="text" size="50" value="" name="A_input" id="A_input" class="matrix" maxlength="100" /><br></br>
-\(\textbf{B}\): <input type="text" size="50" value="" name="B_input" id="B_input" class="matrix" maxlength="100" /><br></br>
-\(\textbf{C}\): <input type="text" size="50" value="" name="C_input" id="C_input" class="matrix" maxlength="100" /><br></br>
-\(\textbf{D}\): <input type="text" size="50" value="" name="D_input" id="D_input" class="matrix" maxlength="100" /><br></br>
+\(\textbf{E}\): <input type="text" size="50" value="[[1,0,0],[0,4,0],[0,0,1]]" name="E_input" id="E_input" class="matrix" maxlength="100" /><br></br>
+\(\textbf{A}\): <input type="text" size="50" value="[[1,0,2],[5,4,2],[0,0,1]]" name="A_input" id="A_input" class="matrix" maxlength="100" /><br></br>
+\(\textbf{B}\): <input type="text" size="50" value="[[1],[5],[6]]" name="B_input" id="B_input" class="matrix" maxlength="100" /><br></br>
+\(\textbf{C}\): <input type="text" size="50" value="[[1,0,3]]" name="C_input" id="C_input" class="matrix" maxlength="100" /><br></br>
+\(\textbf{D}\): <input type="text" size="50" value="[[0]]" name="D_input" id="D_input" class="matrix" maxlength="100" /><br></br>
 </center>
 
 <!-- <script type="text/javascript">
@@ -101,6 +101,7 @@ var render_display_string =function(matrix) {
         outer = false;
         }
     }
+    console.log(rows);
     display_string += "\\begin{bmatrix}";
     for (var r=0; r<rows.length;r++){
       cols = rows[r].split(",");
@@ -116,6 +117,7 @@ var render_display_string =function(matrix) {
     }
     display_string += "\\end{bmatrix}";
   }
+    console.log(display_string);
 
   if (matrix =="A"){
     display_string_A= display_string+states;
@@ -133,10 +135,10 @@ var render_display_string =function(matrix) {
     }
   }
   if (matrix =="A" || matrix=="E" || matrix == "B"){
-    $("#displayed_eq1").html("<span class='cs_math_to_render'>"+display_string_E+display_string_A+display_string_B+"</span>");
+    $("#displayed_eq1").html("<span class='cs_math_to_render'>$"+display_string_E+display_string_A+display_string_B+"$</span>");
     MathJax.Hub.Queue(["Typeset",MathJax.Hub,"#displayed_eq1"]);
   }else{
-    $("#displayed_eq2").html("<span class='cs_math_to_render'>"+display_string_C+display_string_D+"</span>");
+    $("#displayed_eq2").html("<span class='cs_math_to_render'>$"+display_string_C+display_string_D+"$</span>");
     MathJax.Hub.Queue(["Typeset",MathJax.Hub,"#displayed_eq2"]);
   }
 

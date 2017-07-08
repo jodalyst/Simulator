@@ -33,21 +33,6 @@ MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
 \(\textbf{D}\): <input type="text" size="50" value="[[0]]" name="D_input" id="D_input" class="matrix" maxlength="100" /><br></br>
 </center>
 </p>
-<!-- <script type="text/javascript">
-function do_update(){
-        var a = $('#A_input').val();
-        var b = $('#B_input').val();
-        var c = $('#C_input').val();
-        var d = $('#D_input').val();
-        var e = $('#E_input').val();
-    }
-do_update(null);
-$("#A_input").keyup(do_update);
-$("#B_input").keyup(do_update);
-$("#C_input").keyup(do_update);
-$("#D_input").keyup(do_update);
-$("#E_input").keyup(do_update);
-</script> -->
 
 
 <span class="eq_display_area" style="display:block;">
@@ -58,9 +43,15 @@ $("#E_input").keyup(do_update);
 </span>
 
 <script>
+
+function SS_Matrix_Input(div_id,discrete
+
+var jkk
+
+
+
 var states_ahead = "\\begin{bmatrix} x_1\\\\x_2\\\\x_3\\end{bmatrix} \\frac{d}{dt}";
 var states = "\\begin{bmatrix}x_1\\\\x_2\\\\x_3\\end{bmatrix}";
-
 
 var inputs = '\\begin{bmatrix} u \\end{bmatrix}';
 var outputs = '\\begin{bmatrix} y \\end{bmatrix}';
@@ -82,6 +73,8 @@ function stringIsEmpty(str) {
 }
 
 var render_display_string =function(matrix) {
+      
+  vals = vals.replace(' ', '');
   var display_string = "";
   var vals = $("#"+matrix+"_input").val();
   if (! stringIsEmpty(vals)){

@@ -5,13 +5,30 @@ MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
 </script>
 
 
-# Simulator
+# Javascript LTI Simulator
 
-Real basic, first pass at a numerical simualator built on an actual linear-algebra backbone (`numeric javascript found http://www.numericjs.com/index.php)
+MATLAB and Python both have very nice controls-system packages. Javascript, to my knowledge lacks one, so this is a quick pass at an attempt at one, built on the nice linear algebra package `numeric javascript found http://www.numericjs.com/index.php
 
-This demo just has a plotter of three states of a system. Goal is to evetually allow full simulation in here of arbitrarily high order systems.
+The goal of this will be a package that can be readily embedded into online teachign platforms for the purposes of creating learning tools and problem sets/exercises as well as general interest simulation...will this ever be so fast/optimal as to beat MATLAB?  No way.  
 
-Obviously this will never be as fast as a native environment simulation, but this might be good enough for web-based learning and other things.
+
+
+
+###Specific Demos in Repo
+
+* `base.html`: Simple plotter (from <a href="https://github.com/jodalyst/jinstrument" target="_blank">here</a>) of the progression over time of three states.
+
+
+
+### To Do:
+
+
+* Input and simulate arbitrarily high-order state space systems
+* Implement React.js input structure to specify matrices
+* Add in a `c2d` converter so folks can input continuous time state space matrices:
+    * Determine reliable matrix exponential calculation method (series approximation seems fine, but need to push on it)
+* Allow transfer function input and then hidden conversion to state-space form for simulation purposes.
+
 
 
 

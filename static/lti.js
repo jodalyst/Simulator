@@ -29,6 +29,34 @@ for(var i=0;i<100;i++){
 }
 */
 
+function SysSim(var A, var B, var C, var D, var E, var Ts=null){
+   
+    var x_num = A.length; 
+    var x_next;
+    var x;
+    var Ad = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
+    var Bd = [0,0,1];
+    var Cd = [1,0,0];
+
+    this.step = function(var input){
+        var first = numeric.dot(Ad,x);
+        var second = numeric.dot(Bd,u);
+        x_next = numeric.add(first,second);
+        y = numeric.dot(C,x);
+        x = x_next;
+        return y;
+    }
+    this.set = function(var start_state){
+        var ss_x_dim = start_state.length;
+        var ss_y_dim = start_state[0].length;
+    } 
+    this.reset = function(var start_state){
+        x =         
+    }
+}
+
+
+
 
 /*Javascript continuous-to-discrete time state space converter
 Attempts to automatically find timescale appropriate/sufficient for discrete simulation

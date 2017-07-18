@@ -6,6 +6,11 @@ var Ac = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
 var Bc = [0,0,1];
 var Cc = [1,0,0];
 
+console.log(Cc.length);
+if (Cc[0].length == null){
+    console.log("dimension one");
+}
+
 var u = 1;
 var y = [0];
 
@@ -28,15 +33,54 @@ for(var i=0;i<100;i++){
     console.log(y);
 }
 */
+function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
+    var A = Ain.slice(0);
+    var B = Bin.slice(0);
+    var C = Cin.slice(0);
+    var D = Din.slice(0);
+    var E = Ein.slice(0); 
+    var x_num = A.length; //number of states
+    var y_num;
+    var u_num;
+    var A_dimr = A.length;
+    var A_dimc = A[0].length;
+    var B_dimr = B.length;
+    var B_dimc = B[0].length;
+    if (B_dimc == null){
+        B_dimc = 1;
+        u_num = 1; 
+    }else{
+        u_num = B_dimc;
+    }
+    var C_dimc = C.length;
+    var C_dimr = C[0].length;
+    if (C_dimc==null){
+        C_dimc = 1;
+        y_num = 1; 
+    }else{
+        y_num = C_dimc;
+    {
+    var D_dimr = D.length;
+    if (D_dimr==null){
+        D_dimr = 1;
+    } 
+    var D_dimc = D[0].length;
+    if (D_dimc == null){
+        D_dimc = 1;
+    }
+    
+    if (
+    if (E==null){
+        E = numeric.identity(x_num);
+    } 
+    var E_dim1 = E.length;
+    var E_dim2 = E[0].length;
+    
+    if(A_dimr != A_dimc){
+        console.log("Error: A dimensions must agree! ");
 
-function SysSim(var A, var B, var C, var D, var E, var Ts=null){
-   
-    var x_num = A.length; 
     var x_next;
     var x;
-    var Ad = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
-    var Bd = [0,0,1];
-    var Cd = [1,0,0];
 
     this.step = function(var input){
         var first = numeric.dot(Ad,x);
@@ -63,7 +107,7 @@ Attempts to automatically find timescale appropriate/sufficient for discrete sim
 Based off of  eigenvalues of normalized A matrix
 Matrix Exponential for Bd calculated using series...order of sum can be specified...set to 5 for default.
 */
-
+/*
 function c2d(var A,var B,var C,var D,var E,var Ts=null,var order=5){
     var Einv = numeric.inv(E);
     var Aeff = numeric.dot(E,A);
@@ -100,4 +144,4 @@ function factorial(var x){
     }
     return total;
 }
-
+*/

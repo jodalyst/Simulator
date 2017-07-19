@@ -1,5 +1,4 @@
 
-
 var xc = [0,0,0];
 var Ec = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
 var Ac = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
@@ -34,6 +33,10 @@ for(var i=0;i<100;i++){
 }
 */
 function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
+    // # of states dictated by A matrix
+    // number of inputs dictated by B matrix
+    // number of outputs dictated by C matrix
+    // everything else must agree
     var A = Ain.slice(0);
     var B = Bin.slice(0);
     var C = Cin.slice(0);
@@ -69,7 +72,9 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
         D_dimc = 1;
     }
     
-    if (
+    if (D_dimr == null){
+        D_dimr = 1;
+    }
     if (E==null){
         E = numeric.identity(x_num);
     } 
@@ -78,7 +83,17 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
     
     if(A_dimr != A_dimc){
         console.log("Error: A dimensions must agree! ");
-
+        return;
+    }
+    if (B_dimr !=A_dimr){
+        console.log("Error: A and B dimensions do not agree");
+        return;
+    }
+    if (C_dimc != A_dimr){
+        console.log("Error: C matrix must match number of states");
+        return;
+    }
+    
     var x_next;
     var x;
 
@@ -95,10 +110,16 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
         var ss_y_dim = start_state[0].length;
     } 
     this.reset = function(var start_state){
-        x =         
+        this.set(start_state);
+    }
+    this.poles = function(){
+        var Einv = numeric.inv(E);
+        var Aeff = numeric.dot(E,A);
+        return numeric.eig(
+    } 
+    this.zeros = function(){
     }
 }
-
 
 
 
@@ -107,14 +128,14 @@ Attempts to automatically find timescale appropriate/sufficient for discrete sim
 Based off of  eigenvalues of normalized A matrix
 Matrix Exponential for Bd calculated using series...order of sum can be specified...set to 5 for default.
 */
-/*
+
 function c2d(var A,var B,var C,var D,var E,var Ts=null,var order=5){
     var Einv = numeric.inv(E);
-    var Aeff = numeric.dot(E,A);
-    var Beff = numeric.dot(E,B);
-    var ev = numeric.eig(A);
+    var Aeff = numeric.dot(Einv,A);
+    var Beff = numeric.dot(Einv,B);
+    var ev = numeric.eig(Aeff);
     console.log(ev);
-    var min_ev = min(ev);
+    var min_ev = min(ev); //find fastest eigenvalue
     console.log(min_ev);
     if (Ts==null){
         Ts = 0.1*min_ev;
@@ -144,4 +165,3 @@ function factorial(var x){
     }
     return total;
 }
-*/

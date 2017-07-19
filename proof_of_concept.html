@@ -32,7 +32,7 @@ var y = [0];
 
 window.onload = function(){
     var unique = 456;
-    plot2 = new Time_Series("plotbox",'Mouse Moves',PLOT_WIDTH, PLOT_HEIGHT,60,[0,20],3,["red","blue","green"],unique+1);
+    plot2 = new Time_Series("plotbox",'Simulation of states',PLOT_WIDTH, PLOT_HEIGHT,60,[0,20],3,["red","blue","green"],unique+1);
     timer = setInterval(function(){
         var first = numeric.dot(A,x);
         var second = numeric.dot(B,u);

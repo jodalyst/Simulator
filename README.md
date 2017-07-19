@@ -28,7 +28,10 @@ The goal of this will be a package that can be readily embedded into online teac
 * Add in a `c2d` converter so folks can input continuous time state space matrices:
     * Determine reliable matrix exponential calculation method (series approximation seems fine, but need to push on it)
 * Allow transfer function input and then hidden conversion to state-space form for simulation purposes.
-
+* Allow transfer function inputs in both continuous and discrete time
+* Implement the place formula (ackerman's method)
+* Implement LQR
+* Generate Observability and Controllability Matrices
 
 
 

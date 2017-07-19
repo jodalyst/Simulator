@@ -122,6 +122,21 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
 }
 
 
+function rank(var matrix){
+
+}
+
+function controllability(var A, var B, 
+
+function observability(var A, var B){
+
+
+}
+
+function acker(var A, var B, var E= null, var lambda){
+
+
+}
 
 /*Javascript continuous-to-discrete time state space converter
 Attempts to automatically find timescale appropriate/sufficient for discrete simulation

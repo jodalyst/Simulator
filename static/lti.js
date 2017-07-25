@@ -37,66 +37,37 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
     // number of inputs dictated by B matrix
     // number of outputs dictated by C matrix
     // everything else must agree
-    var A = Ain.slice(0);
-    var B = Bin.slice(0);
-    var C = Cin.slice(0);
-    var D = Din.slice(0);
-    var E = Ein.slice(0); 
-    var x_num = A.length; //number of states
-    var y_num;
-    var u_num;
-    var A_dimr = A.length;
-    var A_dimc = A[0].length;
-    var B_dimr = B.length;
-    var B_dimc = B[0].length;
-    if (B_dimc == null){
-        B_dimc = 1;
-        u_num = 1; 
+    var A = $M(Ain.slice(0));
+    var B =$M( Bin.slice(0));
+    var C = $M(Cin.slice(0));
+    var D = $M(Din.slice(0));
+    var E;
+    if (Ein==null){
+        E = $M(Matrix.I(A.row());
     }else{
-        u_num = B_dimc;
+        E = $M(Ein.slice(0));
     }
-    var C_dimc = C.length;
-    var C_dimr = C[0].length;
-    if (C_dimc==null){
-        C_dimc = 1;
-        y_num = 1; 
-    }else{
-        y_num = C_dimc;
-    {
-    var D_dimr = D.length;
-    if (D_dimr==null){
-        D_dimr = 1;
-    } 
-    var D_dimc = D[0].length;
-    if (D_dimc == null){
-        D_dimc = 1;
+    if (!A.isSquare()){
+        console.log("A must be square!");
+        return false;
     }
-    
-    if (D_dimr == null){
-        D_dimr = 1;
+    if (A.rows() != E.rows() || A.cols() != E.cols()){
+        console.log("Size of E and A matrices must agree");
+        return false;
     }
-    if (E==null){
-        E = numeric.identity(x_num);
-    } 
-    var E_dim1 = E.length;
-    var E_dim2 = E[0].length;
-    
-    if(A_dimr != A_dimc){
-        console.log("Error: A dimensions must agree! ");
-        return;
+    if (A.rows() != B.rows(){
+        console.log("Number of A and B rows must agree!");
+        return false;
     }
-    if (B_dimr !=A_dimr){
-        console.log("Error: A and B dimensions do not agree");
-        return;
+    var x = Matrix.Zero(A.rows(),1);
+    var x_next = Matrix.Zero(A.rows(),1);
+    var Ts = Ts;
+    if (C.cols() != x.rows()){
+        console.log("Number of C cols must agree with number of states");
+        return false;
     }
-    if (C_dimc != A_dimr){
-        console.log("Error: C matrix must match number of states");
-        return;
-    }
-    
-    var x_next;
-    var x;
-
+    var y = Matrix.Zero(C.rows(),1);
+    var u = Matrix.zero(B.cols(),1);
     this.step = function(var input){
         var first = numeric.dot(Ad,x);
         var second = numeric.dot(Bd,u);
@@ -137,6 +108,9 @@ function acker(var A, var B, var E= null, var lambda){
 
 
 }
+
+
+
 
 /*Javascript continuous-to-discrete time state space converter
 Attempts to automatically find timescale appropriate/sufficient for discrete simulation
@@ -180,3 +154,44 @@ function factorial(var x){
     }
     return total;
 }
+
+
+/* old version:
+function c2d(var A,var B,var C,var D,var E,var Ts=null,var order=5){
+    var Einv = numeric.inv(E);
+    var Aeff = numeric.dot(Einv,A);
+    var Beff = numeric.dot(Einv,B);
+    var ev = numeric.eig(Aeff);
+    console.log(ev);
+    var min_ev = min(ev); //find fastest eigenvalue
+    console.log(min_ev);
+    if (Ts==null){
+        Ts = 0.1*min_ev;
+    }
+    var Ad = numeric.dot(Aeff,Ts);
+    var Bd = numeric.dot(Beff,Ts);
+    var dim = numeric.dim(Ad)[0];
+    var mT = numeric.dot(numeric.identity(dim),-1)
+    Ad = numeric.add(Ad,mT);
+    var total = numeric.identity(dim);
+    for (var i=1; i<order; i++){
+        var top = 1;
+        for (var j=0; j<i; i++){
+            top = numeric.dot(numeric.dot(Aeff,Ts),top);
+        }
+        numeric.add(numeric.dot(top,1.0/factorial(i+1)),total);
+    }
+    precal = numeric.dot(Ts,total);
+    Bd = numeric.dot(precal,Beff);
+    return {'Ad':Ad,'Bd':Bd,'Cd':C,'Dd': D, 'Ts':Ts}
+};
+
+function factorial(var x){
+    total = x;
+    for (var i = x-1; i>0; i--){
+        total*=i;
+    }
+    return total;
+}
+
+*/

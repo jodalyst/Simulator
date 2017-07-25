@@ -12,6 +12,18 @@ MATLAB and Python both have very nice controls-system packages. Javascript, to m
 The goal of this will be a package that can be readily embedded into online teachign platforms for the purposes of creating learning tools and problem sets/exercises as well as general interest simulation...will this ever be so fast/optimal as to beat MATLAB?  No way.  
 
 
+### Decisions To Be Made ###
+
+From a functionality perspective, the <a href="http://www.numericjs.com/documentation.html" target="_blank">numeric.js library</a> is very strong. However I don't like its looseness in how it lets one define their matrices. One-row and one-column vectors are ambiguous until used, and it assumes/makes the one that should work in a given situation...so if you were to multiply matrix B times matrix C for some weird reason, it would be fine with that and I don't like that.  
+
+Stylistically, the structure of <a href="http://sylvester.jcoglan.com/api/matrix.html" target="_blank">this library</a> is very nice, but it does lack built-in functionality like eigenvalue calculation.  
+
+Javascript prevents/does not allow operator overloading so we'll never be able to conveniently add to matrices as you can in Python or MATLAB...no solution there ever.
+
+
+
+
+
 
 
 ###Specific Demos in Repo

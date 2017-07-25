@@ -528,6 +528,15 @@ Matrix.prototype = {
     return null;
   },
 
+  eig: function(){
+    var output = this.isSquare();
+    if (output){
+      return numeric.eig(this.elements);
+    }else{
+      return false;
+    }
+  },
+
   // If the matrix is square, returns the diagonal elements as a vector.
   // Otherwise, returns null.
   diagonal: function() {

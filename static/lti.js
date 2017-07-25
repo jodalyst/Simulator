@@ -32,6 +32,12 @@ for(var i=0;i<100;i++){
     console.log(y);
 }
 */
+
+
+function eig(var M){
+	//assume that we are handed a matrix.
+
+}
 function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
     // # of states dictated by A matrix
     // number of inputs dictated by B matrix
@@ -60,7 +66,6 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
         return false;
     }
     var x = Matrix.Zero(A.rows(),1);
-    var x_next = Matrix.Zero(A.rows(),1);
     var Ts = Ts;
     if (C.cols() != x.rows()){
         console.log("Number of C cols must agree with number of states");
@@ -69,10 +74,10 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
     var y = Matrix.Zero(C.rows(),1);
     var u = Matrix.zero(B.cols(),1);
     this.step = function(var input){
-        var first = numeric.dot(Ad,x);
-        var second = numeric.dot(Bd,u);
-        x_next = numeric.add(first,second);
-        y = numeric.dot(C,x);
+		var first = A.multiply(x);
+        var second = B.multiply(u);
+        x = first.add(second); 
+        y = C.multiply(x);
         x = x_next;
         return y;
     }

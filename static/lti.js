@@ -34,10 +34,80 @@ for(var i=0;i<100;i++){
 */
 
 
-function eig(var M){
-	//assume that we are handed a matrix.
+function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var typein = "CT"){
+    // # of states dictated by A matrix
+    // number of inputs dictated by B matrix
+    // number of outputs dictated by C matrix
+    // everything else must agree
 
+    //need to make deep copies of input arrays.
+    var A = numeric.clone(Ain);
+    var B = numeric.clone(Bin);
+    var C = numeric.clone(Cin);
+    var D = numeric.clone(Din);
+    var type = typein;
+    if (typein != "CT" || typein != "DT"){
+    	console.log("Type must be either DT or CT!!!");
+    	return false;
+    }
+    var E;
+    if (Ein==null){
+    	var size = numeric.dim(A)[0];
+        E = $M(Matrix.I(A.row());
+    }else{
+        E = numeric.clone(Ein);
+    }
+    if (numeric.dim(A)[0] != numeric.dim(A)[1]){
+        console.log("A must be square!");
+        return false;
+    }
+    if (numeric.dim(E)[0] != numeric.dim(E)[1]){
+        console.log("E must be square!");
+        return false;
+    }
+    if (numeric.dim(E)[0] != numeric.dim(A)[0] || numeric.dim(E)[1] != numeric.dim(A)[1]){
+        console.log("Size of E and A matrices must agree");
+        return false;
+    }
+    if (A.rows() != B.rows(){
+        console.log("Number of A and B rows must agree!");
+        return false;
+    }
+    var x = Matrix.Zero(A.rows(),1);
+    var Ts = Ts;
+    if (C.cols() != x.rows()){
+        console.log("Number of C cols must agree with number of states");
+        return false;
+    }
+    var y = Matrix.Zero(C.rows(),1);
+    var u = Matrix.zero(B.cols(),1);
+    this.step = function(var input){
+		var first = A.multiply(x);
+        var second = B.multiply(u);
+        x = first.add(second); 
+        y = C.multiply(x);
+        x = x_next;
+        return y;
+    }
+    this.set = function(var start_state){
+        var ss_x_dim = start_state.length;
+        var ss_y_dim = start_state[0].length;
+    } 
+    this.reset = function(var start_state){
+        this.set(start_state);
+    }
+    this.poles = function(){
+        var Einv = numeric.inv(E);
+        var Aeff = numeric.dot(E,A);
+        return numeric.eig(
+    } 
+    this.zeros = function(){
+    }
+
+    this.simulator = function(var Ts)
 }
+
+/*
 function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
     // # of states dictated by A matrix
     // number of inputs dictated by B matrix
@@ -101,6 +171,8 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
 function rank(var matrix){
 
 }
+*/
+
 
 function controllability(var A, var B, 
 
@@ -200,3 +272,35 @@ function factorial(var x){
 }
 
 */
+
+
+
+// // Warn if overriding existing method
+// if(Array.prototype.equals)
+//     console.warn("Overriding existing Array.prototype.equals. Possible causes: New API defines the method, there's a framework conflict or you've got double inclusions in your code.");
+// // attach the .equals method to Array's prototype to call it on any array
+// Array.prototype.equals = function (array) {
+//     // if the other array is a falsy value, return
+//     if (!array)
+//         return false;
+
+//     // compare lengths - can save a lot of time 
+//     if (this.length != array.length)
+//         return false;
+
+//     for (var i = 0, l=this.length; i < l; i++) {
+//         // Check if we have nested arrays
+//         if (this[i] instanceof Array && array[i] instanceof Array) {
+//             // recurse into the nested arrays
+//             if (!this[i].equals(array[i]))
+//                 return false;       
+//         }           
+//         else if (this[i] != array[i]) { 
+//             // Warning - two different object instances will never be equal: {x:20} != {x:20}
+//             return false;   
+//         }           
+//     }       
+//     return true;
+// }
+// // Hide method from for-in loops
+// Object.defineProperty(Array.prototype, "equals", {enumerable: false});

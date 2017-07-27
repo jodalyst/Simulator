@@ -41,73 +41,106 @@ function SysSim(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typei
     // everything else must agree
 
     //need to make deep copies of input arrays.
-    var A = numeric.clone(Ain);
-    var B = numeric.clone(Bin);
-    var C = numeric.clone(Cin);
-    var D = numeric.clone(Din);
-    var type = typein;
-    var y;
-    var x;
-    var u;
+    this.A = numeric.clone(Ain);
+    this.B = numeric.clone(Bin);
+    this.C = numeric.clone(Cin);
+    this.D;
+    this.type = typein;
+    this.y;
+    this.x;
+    this.u;
 
     if (typein != "CT" || typein != "DT"){
     	console.log("Type must be either DT or CT!!!");
     	return false;
     }
     //checks on matrices!:  
-    if (numeric.dim(A)[0] != numeric.dim(A)[1]){
+    if (numeric.dim(this.A)[0] != numeric.dim(this.A)[1]){
         console.log("A must be square!");
         return false;
     }
-    var E;
+    //E matrix setup!
+    this.E=0;
     if (Ein==null){
     	var size = numeric.dim(A)[0];
-        E = numeric.identity(size);
+        this.E = numeric.identity(size);
     }else{
-        E = numeric.clone(Ein);
+        this.E = numeric.clone(Ein);
     }
-    if (numeric.dim(E)[0] != numeric.dim(E)[1]){
+    if (numeric.dim(this.E)[0] != numeric.dim(this.E)[1]){
         console.log("E must be square!");
         return false;
     }
-    if (numeric.dim(E)[0] != numeric.dim(A)[0] || numeric.dim(E)[1] != numeric.dim(A)[1]){
+    if (numeric.dim(this.E)[0] != numeric.dim(this.A)[0] || numeric.dim(this.E)[1] != numeric.dim(this.A)[1]){
         console.log("Size of E and A matrices must agree");
         return false;
     }
-    if (numeric.dim(A)[0] != numeric.dim(B)[0]{
+    //A vs. B matrix dimension setup!
+    if (numeric.dim(this.A)[0] != numeric.dim(this.B)[0]{
         console.log("Number of A rows and B rows must agree!");
         return false;
     }
-    x = [];
-    for (int i=0; i<numeric.dim(A)[0]; i++){
-    	x.push(0);
+    //x (state vector) setup:
+    //x vector filled in based on A matrix dimensions...not B.
+    this.x = [];
+    for (int i=0; i<numeric.dim(this.A)[0]; i++){
+    	this.x.push(0);
     }
-    if (numeric.dim(B).length==1){
-    	u = [0];
+    //u (input) setup:
+    if (numeric.dim(this.B).length==1){
+    	this.u = [0];
     }else{
-    	for (int i=0; i<numeric.dim(B)[1];i++){
-    		u.push(0);
+    	for (int i=0; i<numeric.dim(this.B)[1];i++){
+    		this.u.push(0);
     	}
     }
-    if (numeric.dim(C).length==1){
-    	y = [0];
-    	if (numeric.dim(C).length[0] != numeric.dim(x)[0]){
+    //y (output) setup:
+    if (numeric.dim(this.C).length==1){
+    	this.y = [0];
+    	if (numeric.dim(this.C).length[0] != numeric.dim(this.x)[0]){
     		console.log("Number of C cols must agree with number of states");
     		return false;
     	}
     }else{
-    	if (numeric.dim(C).length[1] != numeric.dim(x)[0]){
+    	if (numeric.dim(this.C).length[1] != numeric.dim(this.x)[0]){
     		console.log("Number of C cols must agree with number of states");
     		return false;
     	}
-    	for (int i=0; i<numeric.dim(C)[0]){
+    	for (int i=0; i<numeric.dim(this.C)[0]){
     		y.push(0);
     	}
     }
+    //D matrix checks...annoyingly complex
     if (Din == null){
-    	D = numeric.diag(u);
+    	this.D = numeric.diag(this.u);
     }else{
-    	
+    	this.D = numeric.clone(Din);
+    	if (numeric.dim(this.D).length ==1){ //check if a n by 1 or 1 by n matrix
+    		if (numeric.dim(this.y)[0]!=1){ //check with y
+    			if (numeric.dim(this.y)[0] != numeric.dim(this.D)[0]){
+    				console.log("D dimensions not matching with y dimensions");
+    				return false;
+    			}
+    		}else if(numeric.dim(this.u)[0] != 1){ //check with u
+    			if (numeric.dim(this.u)[0] != numeric.dim(this.D)[0]){
+    				console.log("D dimensions not matching with u dimensions");
+    				return false;
+    			}
+    		}else{
+    			if (numeric.dim(this.D)[0] !=1){
+    				console.log("Error in D dimensions [should be 1 by 1]");
+    				return false;
+    			}
+    		}
+    	}else{
+    		if (numeric.dim(this.D)[0] != numeric.dim(this.y)[0]){
+    			console.log("Error! D matrix dimensions do not agree with y matrix dimensions");
+    			return false;
+    		}if (numeric.dim(this.D)[1] != numeric.dim(this.u)[0]){
+    			console.log("Error! D matrix dimensions do not agree with u matrix dimensions");
+    			return false;
+    		}
+    	}
     }
 
     this.step = function(var input){
@@ -133,7 +166,9 @@ function SysSim(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typei
     this.zeros = function(){
     }
 
-    this.simulator = function(var Ts)
+    this.simulator = function(var Ts){
+    	var output = c2d(this.A,this.B,this.C,this.D,this.E,thisTs=null,var order=5)
+    }
 }
 
 /*
@@ -233,7 +268,7 @@ function c2d(var A,var B,var C,var D,var E,var Ts=null,var order=5){
     var min_ev = min(ev); //find fastest eigenvalue
     console.log(min_ev);
     if (Ts==null){
-        Ts = 0.1*min_ev;
+        Ts = 0.1*min_ev;  //set timestep to be 0.1 of fastest time step
     }
     var Ad = numeric.dot(Aeff,Ts);
     var Bd = numeric.dot(Beff,Ts);

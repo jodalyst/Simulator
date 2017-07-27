@@ -34,7 +34,7 @@ for(var i=0;i<100;i++){
 */
 
 
-function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var typein = "CT"){
+function SysSim(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = "CT"){
     // # of states dictated by A matrix
     // number of inputs dictated by B matrix
     // number of outputs dictated by C matrix
@@ -46,20 +46,25 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var typein = "
     var C = numeric.clone(Cin);
     var D = numeric.clone(Din);
     var type = typein;
+    var y;
+    var x;
+    var u;
+
     if (typein != "CT" || typein != "DT"){
     	console.log("Type must be either DT or CT!!!");
     	return false;
     }
-    var E;
-    if (Ein==null){
-    	var size = numeric.dim(A)[0];
-        E = $M(Matrix.I(A.row());
-    }else{
-        E = numeric.clone(Ein);
-    }
+    //checks on matrices!:  
     if (numeric.dim(A)[0] != numeric.dim(A)[1]){
         console.log("A must be square!");
         return false;
+    }
+    var E;
+    if (Ein==null){
+    	var size = numeric.dim(A)[0];
+        E = numeric.identity(size);
+    }else{
+        E = numeric.clone(Ein);
     }
     if (numeric.dim(E)[0] != numeric.dim(E)[1]){
         console.log("E must be square!");
@@ -69,18 +74,42 @@ function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var typein = "
         console.log("Size of E and A matrices must agree");
         return false;
     }
-    if (A.rows() != B.rows(){
-        console.log("Number of A and B rows must agree!");
+    if (numeric.dim(A)[0] != numeric.dim(B)[0]{
+        console.log("Number of A rows and B rows must agree!");
         return false;
     }
-    var x = Matrix.Zero(A.rows(),1);
-    var Ts = Ts;
-    if (C.cols() != x.rows()){
-        console.log("Number of C cols must agree with number of states");
-        return false;
+    x = [];
+    for (int i=0; i<numeric.dim(A)[0]; i++){
+    	x.push(0);
     }
-    var y = Matrix.Zero(C.rows(),1);
-    var u = Matrix.zero(B.cols(),1);
+    if (numeric.dim(B).length==1){
+    	u = [0];
+    }else{
+    	for (int i=0; i<numeric.dim(B)[1];i++){
+    		u.push(0);
+    	}
+    }
+    if (numeric.dim(C).length==1){
+    	y = [0];
+    	if (numeric.dim(C).length[0] != numeric.dim(x)[0]){
+    		console.log("Number of C cols must agree with number of states");
+    		return false;
+    	}
+    }else{
+    	if (numeric.dim(C).length[1] != numeric.dim(x)[0]){
+    		console.log("Number of C cols must agree with number of states");
+    		return false;
+    	}
+    	for (int i=0; i<numeric.dim(C)[0]){
+    		y.push(0);
+    	}
+    }
+    if (Din == null){
+    	D = numeric.diag(u);
+    }else{
+    	
+    }
+
     this.step = function(var input){
 		var first = A.multiply(x);
         var second = B.multiply(u);

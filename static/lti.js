@@ -26,7 +26,7 @@ This does not handle simulation, which is a different thing entirely...this list
 */
 
 
-function SSObject(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = "CT"){
+function SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = "CT"){
     // # of states dictated by A matrix
     // number of inputs dictated by B matrix
     // number of outputs dictated by C matrix
@@ -137,15 +137,43 @@ function SSObject(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typ
     this.isCT = function(){
     	return this.type == "CT";
     }
+    this.isStable = function(){
+    	setup = this.poles();
+    	for (var i = 0; i<setup.length; i++){
+    		if (this.isCT()){
+    			if (setup[i]>0){
+    				return false;
+    			}
+    		}else{
+    			if (abs(setup[i])>1){
+    				return false;
+    			}
+    		}
+    	}
+    	//survived the gauntlet
+    	return true;
+    }
 
     this.poles = function(){
         var Einv = numeric.inv(E);
         var Aeff = numeric.dot(E,A);
-        return numeric.eig(
+        return numeric.eig(Aeff);
     } 
-    
+
     this.zeros = function(){
     }
+    this.ctrb = function(){
+    	var dim = numeric.dim()
+
+    }
+    this.obsv = function(){
+    	var dim = numeric.dim()
+
+    }
+}
+
+function rank(var M){
+
 }
 
 function SysSim (var sso, var Ts, var state_out = false){

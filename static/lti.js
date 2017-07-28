@@ -18,23 +18,15 @@ var x = [0,0,0];
 var Ad = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
 var Bd = [0,0,1];
 var Cd = [1,0,0];
-/*
-console.log("start");
-for(var i=0;i<100;i++){ 
-    console.log('loop');
-    var first = numeric.dot(Ad,x);
-    var second = numeric.dot(Bd,u);
-    console.log(first);
-    console.log(second);
-    x_next = numeric.add(first,second);
-    y = numeric.dot(C,x);
-    x = x_next;
-    console.log(y);
-}
+
+
+/* 
+Basic object to contain/house/represent a state space object
+This does not handle simulation, which is a different thing entirely...this lists attributes of the system itself
 */
 
 
-function SysSim(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = "CT"){
+function SSObject(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = "CT"){
     // # of states dictated by A matrix
     // number of inputs dictated by B matrix
     // number of outputs dictated by C matrix
@@ -142,100 +134,55 @@ function SysSim(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typei
     		}
     	}
     }
+    this.isCT = function(){
+    	return this.type == "CT";
+    }
 
-    this.step = function(var input){
-		var first = A.multiply(x);
-        var second = B.multiply(u);
-        x = first.add(second); 
-        y = C.multiply(x);
-        x = x_next;
-        return y;
-    }
-    this.set = function(var start_state){
-        var ss_x_dim = start_state.length;
-        var ss_y_dim = start_state[0].length;
-    } 
-    this.reset = function(var start_state){
-        this.set(start_state);
-    }
     this.poles = function(){
         var Einv = numeric.inv(E);
         var Aeff = numeric.dot(E,A);
         return numeric.eig(
     } 
+    
     this.zeros = function(){
-    }
-
-    this.simulator = function(var Ts){
-    	var output = c2d(this.A,this.B,this.C,this.D,this.E,thisTs=null,var order=5)
     }
 }
 
-/*
-function SysSim(var Ain, var Bin, var Cin, var Din, var Ein=null, var Ts=null){
-    // # of states dictated by A matrix
-    // number of inputs dictated by B matrix
-    // number of outputs dictated by C matrix
-    // everything else must agree
-    var A = $M(Ain.slice(0));
-    var B =$M( Bin.slice(0));
-    var C = $M(Cin.slice(0));
-    var D = $M(Din.slice(0));
-    var E;
-    if (Ein==null){
-        E = $M(Matrix.I(A.row());
-    }else{
-        E = $M(Ein.slice(0));
+function SysSim (var sso, var Ts, var state_out = false){
+	var output = c2d(sso.A,sso.B,sso.C,sso.D,sso.E,Ts);
+	this.A = numeric.clone(output['Ad']);
+	this.B = numeric.clone(output['Bd']);
+	this.C = numeric.clone(output['Cd']);
+	this.D = numeric.clone(output['Dd']);
+	this.Ts = Ts;
+	this.x = numeric.clone(sso.x);
+	this.y = numeric.clone(sso.y);
+	this.u = numeric.clone(sso.u);
+	this.state_out = state_out;
+	this.step = function(var u){
+        var first = numeric.dot(this.A,this.x);
+        var second = numeric.dot(this.B,u);
+        this.x = numeric.add(first,second);
+        this.y = numeric.dot(C,x);
+        if (this.state_out){
+        	return [y,x]; //first output, then states
+        }else{}
+        	return y;
+        }
     }
-    if (!A.isSquare()){
-        console.log("A must be square!");
-        return false;
-    }
-    if (A.rows() != E.rows() || A.cols() != E.cols()){
-        console.log("Size of E and A matrices must agree");
-        return false;
-    }
-    if (A.rows() != B.rows(){
-        console.log("Number of A and B rows must agree!");
-        return false;
-    }
-    var x = Matrix.Zero(A.rows(),1);
-    var Ts = Ts;
-    if (C.cols() != x.rows()){
-        console.log("Number of C cols must agree with number of states");
-        return false;
-    }
-    var y = Matrix.Zero(C.rows(),1);
-    var u = Matrix.zero(B.cols(),1);
-    this.step = function(var input){
-		var first = A.multiply(x);
-        var second = B.multiply(u);
-        x = first.add(second); 
-        y = C.multiply(x);
-        x = x_next;
-        return y;
-    }
-    this.set = function(var start_state){
-        var ss_x_dim = start_state.length;
-        var ss_y_dim = start_state[0].length;
+    this.set = function(var start_x, var start_y){
+        this.x = numeric.clone(start_x);
+        this.y = numeric.clone(start_y);
     } 
     this.reset = function(var start_state){
-        this.set(start_state);
-    }
-    this.poles = function(){
-        var Einv = numeric.inv(E);
-        var Aeff = numeric.dot(E,A);
-        return numeric.eig(
-    } 
-    this.zeros = function(){
+    	for (var i = 0; i<numeric.dim(x)[0]; i++){
+    		this.x[i]=0;
+    	}
+    	for (var i = 0; i<numeric.dim(y)[0]; i++){
+    		this.y[i] = 0;
+    	}
     }
 }
-
-
-function rank(var matrix){
-
-}
-*/
 
 
 function controllability(var A, var B, 
@@ -257,6 +204,7 @@ function acker(var A, var B, var E= null, var lambda){
 Attempts to automatically find timescale appropriate/sufficient for discrete simulation
 Based off of  eigenvalues of normalized A matrix
 Matrix Exponential for Bd calculated using series...order of sum can be specified...set to 5 for default.
+Order = length of series when doing matrix exponential
 */
 
 function c2d(var A,var B,var C,var D,var E,var Ts=null,var order=5){

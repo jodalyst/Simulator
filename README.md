@@ -21,6 +21,21 @@ Stylistically, the structure of <a href="http://sylvester.jcoglan.com/api/matrix
 Javascript prevents/does not allow operator overloading so we'll never be able to conveniently add to matrices as you can in Python or MATLAB...no solution there ever.
 
 
+### Objects/Prototypes/Methods:
+
+#### `SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = "CT")`: The basic value
+
+* `poles`: 
+
+* `zeros`:
+
+* `ctrb`: 
+
+* `obsv`:
+
+#### `SysSim (var sso, var Ts, var state_out = false)`:
+ 
+
 
 
 

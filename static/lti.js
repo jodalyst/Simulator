@@ -172,8 +172,45 @@ function SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = 
     }
 }
 
+
+/* Rank function is needed for:
+    Observability Calculation
+    Controlability Calculation
+    Calculation of Zeros (There is rank loss at precisely the location of the zeros)
+
+Rank is of course the list of the maximum number of linearly independent vectors in a matrix
+
+The zeros of the system match the zeros of (for CT):
+
+[[sI-A, -B],
+[C, D]]
+
+Step 1 in all of this is converting to reduced row echelon form/row canonical form...then we can see how many 
+
+So an ideal usage for zero calculation will be to calculate this combined matrix manually out for the user and then feed
+that into the rank function below.
+
+*/ 
 function rank(var M){
 
+/* pseudo-code:
+
+Get in a n by m matrix M:
+Set j to 1:
+For each row i from 1 to n do the following:
+    While column j has all zero elements, if j>m return M else j=j+1
+    If element a_{ij} is zero, then interchange row i with a row x>i that has a_{xj} != 0
+    Divide each element of row i by a_{ij}, (to make the pivot a_{ij} equal to one).
+    For each row k from 1 to n, with k !=i, subtract row i multiplied by a_{kj} from row k.
+    Return transformed matrix A
+
+
+*/
+//R is RREF
+var R = numeric.clone(M);
+for (var j=1; j< numeric.dim(M)[0]; j++){
+    
+}
 }
 
 function SysSim (var sso, var Ts, var state_out = false){

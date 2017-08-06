@@ -190,7 +190,13 @@ Step 1 in all of this is converting to reduced row echelon form/row canonical fo
 So an ideal usage for zero calculation will be to calculate this combined matrix manually out for the user and then feed
 that into the rank function below.
 
+Where there is rank loss tells us where zeros are...how to search for that?  Not sure...need to look into.
+
 */ 
+
+function isZero(element, index, array) { 
+  return element == 0; 
+} 
 function rank(var M){
 
 /* pseudo-code:
@@ -207,10 +213,30 @@ For each row i from 1 to n do the following:
 
 */
 //R is RREF
-var R = numeric.clone(M);
-for (var j=1; j< numeric.dim(M)[0]; j++){
-    
-}
+    var R = numeric.clone(M);
+    var size = numeric.dim(M);
+    for (var i=0; i<size[0]; i++){
+        var all_zeros = true;
+        for (var j=0; j<size[1]; j++){
+            var col = R.map(function(value,index) { return value[j]; });
+            if (col.every(isZero)){
+                continue;
+            }else if(R[i][j] == 0){
+                var orig = numeric.clone(R[i])
+                var to_flip = numeric.clone(R[i+1]);
+                R[i] = 
+                var 
+        }
+
+        //nope...this is on row...needs to be on column...
+        if (R[i].every(isZero)){
+            continue;
+        }else{
+            for (var j=0; j<size[1]; j++){
+                if (R[j][i] ==0 
+            }
+        }
+    }
 }
 
 function SysSim (var sso, var Ts, var state_out = false){

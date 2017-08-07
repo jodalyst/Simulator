@@ -239,6 +239,42 @@ For each row i from 1 to n do the following:
     }
 }
 
+
+//version 2:
+function rank(var M){
+    var R = numeric.clone(M);
+    var rows = R.length;
+    var columns = R[0].length;
+    var lead = 0;
+    for (var k = 0; k < rows; k++) {
+        if (columns <= lead) return;
+        var i = k;
+        while (R[i][lead] === 0) {
+            i++;
+            if (rows === i) {
+                i = k;
+                lead++;
+                if (columns === lead) return;
+            }
+        }
+        var irow = R[i], krow = A[k];
+        R[i] = krow, R[k] = irow;
+        var val = R[k][lead];
+        for (var j = 0; j < columns; j++) {
+            R[k][j] /= val;
+        }
+        for (var i = 0; i < rows; i++) {
+            if (i === k) continue;
+            val = R[i][lead];
+            for (var j = 0; j < columns; j++) {
+                R[i][j] -= val * R[k][j];
+            }
+        }
+        lead++;
+    }
+    return R;
+};
+
 function SysSim (var sso, var Ts, var state_out = false){
 	var output = c2d(sso.A,sso.B,sso.C,sso.D,sso.E,Ts);
 	this.A = numeric.clone(output['Ad']);

@@ -213,35 +213,23 @@ For each row i from 1 to n do the following:
 
 */
 //R is RREF
-    var R = numeric.clone(M);
-    var size = numeric.dim(M);
-    for (var i=0; i<size[0]; i++){
-        var all_zeros = true;
-        for (var j=0; j<size[1]; j++){
-            var col = R.map(function(value,index) { return value[j]; });
-            if (col.every(isZero)){
-                continue;
-            }else if(R[i][j] == 0){
-                var orig = numeric.clone(R[i])
-                var to_flip = numeric.clone(R[i+1]);
-                R[i] = 
-                var 
-        }
-
-        //nope...this is on row...needs to be on column...
-        if (R[i].every(isZero)){
-            continue;
-        }else{
-            for (var j=0; j<size[1]; j++){
-                if (R[j][i] ==0 
-            }
+    var R = rref(M);
+    var cols = R.length[0].length;
+    var rows = R.length;
+    var count = cols;
+    for (var i = 0; i < rows; i++){
+        if (R[0].every(isZero)){
+            count -=1;
         }
     }
+    return count;
+     
 }
 
 
 //version 2:
-function rank(var M){
+//based on implementation here: https://github.com/substack/rref
+function rref(var M){
     var R = numeric.clone(M);
     var rows = R.length;
     var columns = R[0].length;

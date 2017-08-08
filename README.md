@@ -1,9 +1,3 @@
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-</script>
-
 
 # Javascript LTI Simulator
 
@@ -64,7 +58,7 @@ Javascript prevents/does not allow operator overloading so we'll never be able t
 
 
 
-
+<!--
 So let's start with our system in continuous time. First let's establish what the value of $\textbf{x}[n]$ is going to be based off of the continuous time equation for $\textbf{x}(t)$. The value $\textbf{x}[n]$ is matched to the value of $\textbf{x}(nT)$ where $T$ is the sample time of our discrete time system.
 $$
 \textbf{x}[n] = \textbf{x}(nT) = e^{\textbf{A}nT}\textbf{x}(0) + \int_0^{nT}e^{\textbf{A}\left(nT-\tau\right)}\textbf{B}u\left(\tau\right)d\tau
@@ -186,3 +180,5 @@ $$
 I'd like to stress once again that we made no approximations in this derivation!  The zero-order-hold assertion we made is totally legitimate and very much representative of how the world will actually work.  What we just did is derive an \textit{exact} expression for a discrete time state space model.
 
 But what if we had instead derived it organically (using the sort of discrete time models we messed with in the first few weeks of 6.302?  We'll do it both ways in an example next and see how things pan out:)
+
+-->

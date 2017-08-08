@@ -26,7 +26,7 @@ This does not handle simulation, which is a different thing entirely...this list
 */
 
 
-function SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = "CT"){
+function SS(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
     // # of states dictated by A matrix
     // number of inputs dictated by B matrix
     // number of outputs dictated by C matrix
@@ -41,8 +41,8 @@ function SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = 
     this.y;
     this.x;
     this.u;
-
-    if (typein != "CT" || typein != "DT"){
+    console.log(typein);
+    if (typein != "CT" && typein != "DT"){
     	console.log("Type must be either DT or CT!!!");
     	return false;
     }
@@ -54,7 +54,7 @@ function SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = 
     //E matrix setup!
     this.E=0;
     if (Ein==null){
-    	var size = numeric.dim(A)[0];
+    	var size = numeric.dim(this.A)[0];
         this.E = numeric.identity(size);
     }else{
         this.E = numeric.clone(Ein);
@@ -68,28 +68,30 @@ function SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = 
         return false;
     }
     //A vs. B matrix dimension setup!
-    if (numeric.dim(this.A)[0] != numeric.dim(this.B)[0]{
+    if (numeric.dim(this.A)[0] != numeric.dim(this.B)[0]){
         console.log("Number of A rows and B rows must agree!");
         return false;
     }
     //x (state vector) setup:
     //x vector filled in based on A matrix dimensions...not B.
     this.x = [];
-    for (int i=0; i<numeric.dim(this.A)[0]; i++){
+    for (var i=0; i<numeric.dim(this.A)[0]; i++){
     	this.x.push(0);
     }
     //u (input) setup:
     if (numeric.dim(this.B).length==1){
     	this.u = [0];
     }else{
-    	for (int i=0; i<numeric.dim(this.B)[1];i++){
+    	for (var i=0; i<numeric.dim(this.B)[1];i++){
     		this.u.push(0);
     	}
     }
     //y (output) setup:
     if (numeric.dim(this.C).length==1){
     	this.y = [0];
-    	if (numeric.dim(this.C).length[0] != numeric.dim(this.x)[0]){
+        console.log(numeric.dim(this.C)[0]);
+        console.log(numeric.dim(this.x)[0]);
+    	if (numeric.dim(this.C)[0] !== numeric.dim(this.x)[0]){
     		console.log("Number of C cols must agree with number of states");
     		return false;
     	}
@@ -98,7 +100,7 @@ function SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = 
     		console.log("Number of C cols must agree with number of states");
     		return false;
     	}
-    	for (int i=0; i<numeric.dim(this.C)[0]){
+    	for (var i=0; i<numeric.dim(this.C)[0]; i++){
     		y.push(0);
     	}
     }
@@ -134,6 +136,11 @@ function SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = 
     		}
     	}
     }
+    console.log('setup!');
+    console.log(this.A);
+    console.log(this.B);
+    console.log(this.C);
+    console.log(this.D);
     this.isCT = function(){
     	return this.type == "CT";
     }
@@ -197,7 +204,7 @@ Where there is rank loss tells us where zeros are...how to search for that?  Not
 function isZero(element, index, array) { 
   return element == 0; 
 } 
-function rank(var M){
+function rank(M){
 
 /* pseudo-code:
 
@@ -229,8 +236,8 @@ For each row i from 1 to n do the following:
 
 //version 2:
 //based on implementation here: https://github.com/substack/rref
-function rref(var M){
-    var R = numeric.clone(M);
+function rref(M){
+    var R = numeric.clone(M); //deep copy to avoide messing up input matrix.
     var rows = R.length;
     var columns = R[0].length;
     var lead = 0;
@@ -263,7 +270,8 @@ function rref(var M){
     return R;
 };
 
-function SysSim (var sso, var Ts, var state_out = false){
+function SysSim (sso, Ts, state_out = false){
+    console.log(sso);
 	var output = c2d(sso.A,sso.B,sso.C,sso.D,sso.E,Ts);
 	this.A = numeric.clone(output['Ad']);
 	this.B = numeric.clone(output['Bd']);
@@ -274,22 +282,22 @@ function SysSim (var sso, var Ts, var state_out = false){
 	this.y = numeric.clone(sso.y);
 	this.u = numeric.clone(sso.u);
 	this.state_out = state_out;
-	this.step = function(var u){
+	this.step = function(u){
         var first = numeric.dot(this.A,this.x);
         var second = numeric.dot(this.B,u);
         this.x = numeric.add(first,second);
         this.y = numeric.dot(C,x);
         if (this.state_out){
         	return [y,x]; //first output, then states
-        }else{}
+        }else{
         	return y;
         }
     }
-    this.set = function(var start_x, var start_y){
+    this.set = function(start_x,start_y){
         this.x = numeric.clone(start_x);
         this.y = numeric.clone(start_y);
     } 
-    this.reset = function(var start_state){
+    this.reset = function(start_state){
     	for (var i = 0; i<numeric.dim(x)[0]; i++){
     		this.x[i]=0;
     	}
@@ -300,14 +308,16 @@ function SysSim (var sso, var Ts, var state_out = false){
 }
 
 
-function controllability(var A, var B, 
+function controllability(A, B){
 
-function observability(var A, var B){
+}
+
+function observability(A,B){
 
 
 }
 
-function acker(var A, var B, var E= null, var lambda){
+function acker(A, B, E= null, lambda){
 
 
 }
@@ -322,19 +332,22 @@ Matrix Exponential for Bd calculated using series...order of sum can be specifie
 Order = length of series when doing matrix exponential
 */
 
-function c2d(var A,var B,var C,var D,var E,var Ts=null,var order=5){
+function c2d(A,B,C,D,E,Ts=null,order=5){
     var Einv = numeric.inv(E);
     var Aeff = numeric.dot(Einv,A);
     var Beff = numeric.dot(Einv,B);
     var ev = numeric.eig(Aeff);
     console.log(ev);
-    var min_ev = min(ev); //find fastest eigenvalue
+    var min_ev = Math.min.apply(null,ev); //find fastest eigenvalue
     console.log(min_ev);
     if (Ts==null){
         Ts = 0.1*min_ev;  //set timestep to be 0.1 of fastest time step
     }
-    var Ad = numeric.dot(Aeff,Ts);
-    var Bd = numeric.dot(Beff,Ts);
+    console.log(Aeff);
+    console.log(Beff);
+    console.log(Ts);
+    var Ad = numeric.dot(Aeff,[Ts]);
+    var Bd = numeric.dot(Beff,[Ts]);
     var dim = numeric.dim(Ad)[0];
     var mT = numeric.dot(numeric.identity(dim),-1)
     Ad = numeric.add(Ad,mT);
@@ -351,7 +364,7 @@ function c2d(var A,var B,var C,var D,var E,var Ts=null,var order=5){
     return {'Ad':Ad,'Bd':Bd,'Cd':C,'Dd': D, 'Ts':Ts}
 };
 
-function factorial(var x){
+function factorial(x){
     total = x;
     for (var i = x-1; i>0; i--){
         total*=i;

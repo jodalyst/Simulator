@@ -10,7 +10,9 @@
   <script src="./static/lti.js" type="text/javascript"></script>
 </head>
 <body>
-<p>Test Javascript LTI STATE SPACE :P</p>
+<h2>Javascript Testing Ground for lti.js</h2>
+
+<p>Currently this page has no real working animation/demonstration...rather it is a loading page for the <tt>lti.js</tt> library currently under development.  Included in this code is a branch of the jinstrument library for plotting purposes.</p>
   <div >
     <div id="plotbox"></div>
   </div>
@@ -26,24 +28,30 @@ var plot2;
 
 var sys = new SS([[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]],[0,0,1], [1,0,0]);
 console.log(sys);
+console.log(sys.A);
+console.log(sys.B);
+console.log(sys.C);
+console.log(sys.D);
+console.log(sys.E);
 
-var system = new SysSim(sys,0.01);
+ //var system = new SysSim(sys,0.01);
+ //console.log(system);
 
 
-window.onload = function(){
-    var unique = 456;
-    plot2 = new Time_Series("plotbox",'Simulation of states',PLOT_WIDTH, PLOT_HEIGHT,60,[0,20],3,["red","blue","green"],unique+1);
-    timer = setInterval(function(){
-        var first = A.multiply(x);
-        var second = B.multiply(u);
-        x_next = first.add(second); 
-        y = C.multiply(x);
-        x = x_next;
-        console.log(x.e(1,1));
+// window.onload = function(){
+//     var unique = 456;
+//     plot2 = new Time_Series("plotbox",'Simulation of states',PLOT_WIDTH, PLOT_HEIGHT,60,[0,20],3,["red","blue","green"],unique+1);
+//     timer = setInterval(function(){
+//         var first = A.multiply(x);
+//         var second = B.multiply(u);
+//         x_next = first.add(second); 
+//         y = C.multiply(x);
+//         x = x_next;
+//         console.log(x.e(1,1));
 
-        plot2.step([[x.e(1,1)],[x.e(2,1)],[x.e(3,1)]]);
-    }, 10);
-}
+//         plot2.step([[x.e(1,1)],[x.e(2,1)],[x.e(3,1)]]);
+//     }, 10);
+// }
 </script>
 
 </html>

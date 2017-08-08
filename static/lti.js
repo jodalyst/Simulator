@@ -334,6 +334,7 @@ Order = length of series when doing matrix exponential
 
 function c2d(A,B,C,D,E,Ts=null,order=5){
     var Einv = numeric.inv(E);
+    console.log(Einv);
     var Aeff = numeric.dot(Einv,A);
     var Beff = numeric.dot(Einv,B);
     var ev = numeric.eig(Aeff);
@@ -346,16 +347,16 @@ function c2d(A,B,C,D,E,Ts=null,order=5){
     console.log(Aeff);
     console.log(Beff);
     console.log(Ts);
-    var Ad = numeric.dot(Aeff,[Ts]);
-    var Bd = numeric.dot(Beff,[Ts]);
+    var Ad = numeric.mul(Aeff,Ts);
+    var Bd = numeric.mul(Beff,Ts);
     var dim = numeric.dim(Ad)[0];
-    var mT = numeric.dot(numeric.identity(dim),-1)
+    var mT = numeric.mul(numeric.identity(dim),-1)
     Ad = numeric.add(Ad,mT);
     var total = numeric.identity(dim);
     for (var i=1; i<order; i++){
         var top = 1;
         for (var j=0; j<i; i++){
-            top = numeric.dot(numeric.dot(Aeff,Ts),top);
+            top = numeric.mul(numeric.mul(Aeff,Ts),top);
         }
         numeric.add(numeric.dot(top,1.0/factorial(i+1)),total);
     }

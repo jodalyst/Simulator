@@ -23,7 +23,7 @@ Javascript prevents/does not allow operator overloading so we'll never be able t
 
 ### Objects/Prototypes/Methods:
 
-#### `SS(var Ain, var Bin, var Cin, var Din=null, var Ein=null, var typein = "CT")`: The basic value
+#### `SS(Ain, Bin, Cin, Din=null, Ein=null, typein = "CT")`: The basic value
 
 * `poles`: 
 
@@ -33,10 +33,12 @@ Javascript prevents/does not allow operator overloading so we'll never be able t
 
 * `obsv`:
 
-#### `SysSim (var sso, var Ts, var state_out = false)`:
+#### `SysSim (sso, Ts, state_out = false)`:
  
+#### `rref(M)`: Returns the Reduced Row Echelon Form of the Matrix
 
 
+#### `rank(M)`: Returns the rank of the matrix
 
 
 

@@ -226,7 +226,7 @@ For each row i from 1 to n do the following:
     var rows = R.length;
     var count = cols;
     for (var i = 0; i < rows; i++){
-        if (R[0].every(isZero)){
+        if (R[i].every(isZero)){
             count -=1;
         }
     }
@@ -236,21 +236,20 @@ For each row i from 1 to n do the following:
 
 //version 2:
 //based on implementation here: https://github.com/substack/rref
-function rref(M){
-    var R = numeric.clone(M); //deep copy to avoide messing up input matrix.
-    console.log(R);
+function rref(Y){
+    var R = numeric.clone(Y); //deep copy to avoide messing up input matrix.
     var rows = R.length;
     var columns = R[0].length;
     var lead = 0;
     for (var k = 0; k < rows; k++) {
-        if (columns <= lead) return;
+        if (columns <= lead) return R;
         var i = k;
         while (R[i][lead] === 0) {
             i++;
             if (rows === i) {
                 i = k;
                 lead++;
-                if (columns === lead) return;
+                if (columns === lead) return R;
             }
         }
         var irow = R[i], krow = R[k];
@@ -268,7 +267,6 @@ function rref(M){
         }
         lead++;
     }
-    console.log(R);
     return R;
 };
 

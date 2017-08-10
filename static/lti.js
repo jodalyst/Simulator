@@ -162,20 +162,50 @@ function SS(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
     }
 
     this.poles = function(){
-        var Einv = numeric.inv(E);
-        var Aeff = numeric.dot(E,A);
+        var Einv = numeric.inv(this.E);
+        var Aeff = numeric.dot(this.E,this.A);
         return numeric.eig(Aeff);
     } 
 
     this.zeros = function(){
     }
     this.ctrb = function(){
-    	var dim = numeric.dim()
+        var n = this.A.length;
+        var builder = [];
+        for (var i = 0; i<n; i++){
+            if (i==0){
+                builder.push(this.B);
+            }else{
+                var starter = numeric.clone(this.A);
+                for (var j = 0; j< i; j++){
+                    starter = numeric.dot(starter,this.A);
+                }
+                starter = numeric.dot(starter,this.B);
+                //should we clone here?
+                builder.push(numeric.clone(starter));
+            }
+        }
+        var C = numeric.transpose(builder);
+        return rank(C)===n;
 
     }
     this.obsv = function(){
-    	var dim = numeric.dim()
-
+    	var n = this.A.length;
+        var O = [];
+        for (var i = 0; i<n; i++){
+            if (i==0){
+                builder.push(this.C);
+            }else{
+                var starter = numeric.clone(this.C);
+                for (var j = 0; j< i; j++){
+                    starter = numeric.dot(starter,this.A);
+                }
+                builder.push(starter);
+            }
+        }
+        //should not need to transpose here.
+        var O = numeric.transpose(builder);
+        return rank(O)===n;
     }
 }
 
@@ -282,7 +312,7 @@ function SysSim (sso, Ts, state_out = false){
         this.A = numeric.clone(sso.A);
         this.B = numeric.clone(sso.B);
         this.C = numeric.clone(sso.C);
-        this.D = numeric.clone(sso.D]);
+        this.D = numeric.clone(sso.D);
     }
     console.log(output);
 	this.A = numeric.clone(output['Ad']);

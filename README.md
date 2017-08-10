@@ -38,6 +38,7 @@ Javascript prevents/does not allow operator overloading so we'll never be able t
 
 * `sso`: An instance of the `SS` class.
 * `Ts`: The 'time-step' you'd like to use in the simulation. Argument is ignored if the `sso` is a discrete time system
+* `state_out=false`: If left at `false` upon calling the `step` method, only the output (`y`) vector will be returned.  If it is set to `true`, then you must expect an array of the output `y` followed by the state vector `x`.
  
 #### `rref(M)`: Returns the Reduced Row Echelon Form of the Matrix
 

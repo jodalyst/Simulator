@@ -215,13 +215,14 @@ For each row i from 1 to n do the following:
     If element a_{ij} is zero, then interchange row i with a row x>i that has a_{xj} != 0
     Divide each element of row i by a_{ij}, (to make the pivot a_{ij} equal to one).
     For each row k from 1 to n, with k !=i, subtract row i multiplied by a_{kj} from row k.
-    Return transformed matrix A
+    Return transformed matrix R
 
 
 */
 //R is RREF
     var R = rref(M);
-    var cols = R.length[0].length;
+    console.log(R);
+    var cols = R[0].length;
     var rows = R.length;
     var count = cols;
     for (var i = 0; i < rows; i++){
@@ -237,6 +238,7 @@ For each row i from 1 to n do the following:
 //based on implementation here: https://github.com/substack/rref
 function rref(M){
     var R = numeric.clone(M); //deep copy to avoide messing up input matrix.
+    console.log(R);
     var rows = R.length;
     var columns = R[0].length;
     var lead = 0;
@@ -251,7 +253,7 @@ function rref(M){
                 if (columns === lead) return;
             }
         }
-        var irow = R[i], krow = A[k];
+        var irow = R[i], krow = R[k];
         R[i] = krow, R[k] = irow;
         var val = R[k][lead];
         for (var j = 0; j < columns; j++) {
@@ -266,6 +268,7 @@ function rref(M){
         }
         lead++;
     }
+    console.log(R);
     return R;
 };
 

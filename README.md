@@ -19,15 +19,25 @@ Javascript prevents/does not allow operator overloading so we'll never be able t
 
 #### `SS(Ain, Bin, Cin, Din=null, Ein=null, typein = "CT")`: The basic value
 
-* `poles`: 
+* `Ain`: The $A$ matrix of the system
+* `Bin`: The $B$ matrix of the system
+* `Cin`: The $C$ matrix of the system
+* `Din`: The $D$ matrix of the system (defaults to empty if unspecified)
+* `Ein`: The $E$ matrix of the system (defaults to a properly-sized identity Matrix if unspecified)
+* `typein`: The type of the system (continuous time or discrete time?)
 
-* `zeros`:
+* `poles`: Method which returns poles (eigenvalues) of the system
 
-* `ctrb`: 
+* `zeros`: Method which returns the zeros of the system
 
-* `obsv`:
+* `ctrb`: Method which returns if the system is controllable
+
+* `obsv`: Method which returns if the system is observable
 
 #### `SysSim (sso, Ts, state_out = false)`:
+
+* `sso`: An instance of the `SS` class.
+* `Ts`: The 'time-step' you'd like to use in the simulation. Argument is ignored if the `sso` is a discrete time system
  
 #### `rref(M)`: Returns the Reduced Row Echelon Form of the Matrix
 
@@ -47,7 +57,6 @@ Javascript prevents/does not allow operator overloading so we'll never be able t
 
 
 * Input and simulate arbitrarily high-order state space systems
-* Implement React.js input structure to specify matrices
 * Add in a `c2d` converter so folks can input continuous time state space matrices:
     * Determine reliable matrix exponential calculation method (series approximation seems fine, but need to push on it)
 * Allow transfer function input and then hidden conversion to state-space form for simulation purposes.
@@ -55,6 +64,7 @@ Javascript prevents/does not allow operator overloading so we'll never be able t
 * Implement the place formula (ackerman's method)
 * Implement LQR
 * Generate Observability and Controllability Matrices
+* Fix/clean up E matrix handling upon ingestion...make sure it defaults to eye when system is specified as discrete.
 
 
 

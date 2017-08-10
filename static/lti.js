@@ -272,7 +272,18 @@ function rref(Y){
 
 function SysSim (sso, Ts, state_out = false){
     console.log(sso);
-	var output = c2d(sso.A,sso.B,sso.C,sso.D,sso.E,Ts);
+    if (sso.type=='CT'){
+	   var output = c2d(sso.A,sso.B,sso.C,sso.D,sso.E,Ts);
+        this.A = numeric.clone(output['Ad']);
+        this.B = numeric.clone(output['Bd']);
+        this.C = numeric.clone(output['Cd']);
+        this.D = numeric.clone(output['Dd']);
+    }else{
+        this.A = numeric.clone(sso.A);
+        this.B = numeric.clone(sso.B);
+        this.C = numeric.clone(sso.C);
+        this.D = numeric.clone(sso.D]);
+    }
     console.log(output);
 	this.A = numeric.clone(output['Ad']);
 	this.B = numeric.clone(output['Bd']);

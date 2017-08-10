@@ -35,15 +35,15 @@ var plot2;
 
 
 var sys = new SS([[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]],[0,0,1], [1,0,0]);
-console.log(sys);
-console.log(sys.A);
-console.log(sys.B);
-console.log(sys.C);
-console.log(sys.D);
-console.log(sys.E);
+// console.log(sys);
+// console.log(sys.A);
+// console.log(sys.B);
+// console.log(sys.C);
+// console.log(sys.D);
+// console.log(sys.E);
 
- //var system = new SysSim(sys,0.01);
- //console.log(system);
+ var system = new SysSim(sys,0.01);
+ console.log(system);
 
 
 // window.onload = function(){

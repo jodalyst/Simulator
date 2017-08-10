@@ -233,7 +233,6 @@ For each row i from 1 to n do the following:
      
 }
 
-
 //version 2:
 //based on implementation here: https://github.com/substack/rref
 function rref(M){
@@ -273,6 +272,7 @@ function rref(M){
 function SysSim (sso, Ts, state_out = false){
     console.log(sso);
 	var output = c2d(sso.A,sso.B,sso.C,sso.D,sso.E,Ts);
+    console.log(output);
 	this.A = numeric.clone(output['Ad']);
 	this.B = numeric.clone(output['Bd']);
 	this.C = numeric.clone(output['Cd']);
@@ -333,6 +333,7 @@ Order = length of series when doing matrix exponential
 */
 
 function c2d(A,B,C,D,E,Ts=null,order=5){
+    console.log("starting c2d");
     var Einv = numeric.inv(E);
     console.log(Einv);
     var Aeff = numeric.dot(Einv,A);
@@ -347,20 +348,22 @@ function c2d(A,B,C,D,E,Ts=null,order=5){
     console.log(Aeff);
     console.log(Beff);
     console.log(Ts);
+    console.log("starting to build A");
     var Ad = numeric.mul(Aeff,Ts);
     var Bd = numeric.mul(Beff,Ts);
     var dim = numeric.dim(Ad)[0];
     var mT = numeric.mul(numeric.identity(dim),-1)
     Ad = numeric.add(Ad,mT);
     var total = numeric.identity(dim);
+    console.log(order);
     for (var i=1; i<order; i++){
         var top = 1;
-        for (var j=0; j<i; i++){
+        for (var j=0; j<i; j++){
             top = numeric.mul(numeric.mul(Aeff,Ts),top);
         }
-        numeric.add(numeric.dot(top,1.0/factorial(i+1)),total);
+        numeric.add(numeric.mul(top,1.0/factorial(i+1)),total);
     }
-    precal = numeric.dot(Ts,total);
+    precal = numeric.mul(Ts,total);
     Bd = numeric.dot(precal,Beff);
     return {'Ad':Ad,'Bd':Bd,'Cd':C,'Dd': D, 'Ts':Ts}
 };

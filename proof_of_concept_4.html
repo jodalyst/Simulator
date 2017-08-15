@@ -24,7 +24,21 @@
   <div >
     <div id="plotbox"></div>
   </div>
+
+<h2>Creation</h2>
+
+<p>To create a state space object one needs to do the following:
+
+<pre>
+var sys = new SS([[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]],[0,0,1], [1,0,0]);
+</pre>
+
+
+
+
 </body>
+
+
 
 <script>
 var PLOT_HEIGHT = 200;

@@ -20,6 +20,19 @@ var Bd = [0,0,1];
 var Cd = [1,0,0];
 
 
+function SS_Matrix_Input(div_id,discrete = "CT"){
+  this.element = document.getElementById(div_id);
+
+  <span class="eq_display_area" style="display:block;">
+    <center>
+        <p id="displayed_eq1"></p>
+        <p id="displayed_eq2"></p>
+    </center>
+  </span>
+
+
+}
+
 /* 
 Basic object to contain/house/represent a state space object
 This does not handle simulation, which is a different thing entirely...this lists attributes of the system itself
@@ -207,6 +220,84 @@ function SS(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
         var O = numeric.transpose(builder);
         return rank(O)===n;
     }
+    this.display = function(matrix){
+        switch(matrix){
+            case "A":
+                var 
+                break;
+            case "B":
+                break;
+            case "C":
+                break;
+            case "D":
+                break;
+            case "E":
+                break;
+            case "x":
+                break;
+            case "y":
+                break;
+            case "u":
+                break;
+        }
+
+    }
+    this.display_all = function(mode=ss){
+        var A = this.display("A");
+        var B = this.display("B");
+        var C = this.display("C");
+        var D = this.display("D");
+        var x = this.display("x");
+        var y = this.display("y");
+        var u = this.display("u");
+    }
+}
+
+/*render_matrix takes in a matrix and row, column dimensions, which are
+mainly used to clarify ambiguity of how row and column vectors are stored
+identically in the numeric.js format */
+
+function render_matrix(matrix,r,c){
+    if (c==1 && matrix.length != r) return "";
+    if (r==1 && matrix.length != c) return "";
+    var display_string = "\\begin{bmatrix}";
+    if (c == 1){
+        for (var i=0; i<matrix.length; i++){
+            display_string += matrix[i];
+            if (i < matrix.length-1){
+                display_string +="&";
+            }
+        }
+    }else if (r == 1){
+        for (var i=0; i<matrix.length; i++){
+            display_string += matrix[i];
+            if (i < matrix.length-1){
+                display_string +="\\\\";
+            }
+        }
+    }else{
+        for (var i=0; i<matrix.length; i++){
+            for (var j=0; j<matrix[i].length;j++){
+                display_string += matrix[i][j];
+                if (j < matrix[i].length-1){
+                    display_string +="&";
+                }
+            }
+            if (i < matrix.length-1){
+                display_string +="\\\\";
+            }
+        }
+    }
+    display_string += "\\end{bmatrix}";
+    return display_string;
+}
+
+function feedback (sso, K){
+    //create a new sso and return it based off of hte feedback
+    var new_A = numeric.dot(sso.B,sso.K);
+    var new_A = numeric.sub(sso.A - new_A);
+    var newss = new SS(new_A, sso.B,sso.C,sso.D,typein=sso.type);
+    return newss;
 }
 
 
@@ -235,21 +326,6 @@ function isZero(element, index, array) {
   return element == 0; 
 } 
 function rank(M){
-
-/* pseudo-code:
-
-Get in a n by m matrix M:
-Set j to 1:
-For each row i from 1 to n do the following:
-    While column j has all zero elements, if j>m return M else j=j+1
-    If element a_{ij} is zero, then interchange row i with a row x>i that has a_{xj} != 0
-    Divide each element of row i by a_{ij}, (to make the pivot a_{ij} equal to one).
-    For each row k from 1 to n, with k !=i, subtract row i multiplied by a_{kj} from row k.
-    Return transformed matrix R
-
-
-*/
-//R is RREF
     var R = rref(M);
     console.log(R);
     var cols = R[0].length;
@@ -350,14 +426,6 @@ function SysSim (sso, Ts, state_out = false){
 }
 
 
-function controllability(A, B){
-
-}
-
-function observability(A,B){
-
-
-}
 
 function acker(A, B, E= null, lambda){
 

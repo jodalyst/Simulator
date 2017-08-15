@@ -19,18 +19,31 @@ var Ad = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
 var Bd = [0,0,1];
 var Cd = [1,0,0];
 
-
-function SS_Matrix_Input(div_id,discrete = "CT"){
+/*Specify inputs to create these on the fly*/
+function SS_Matrix_Input(div_id,discrete = "CT",type='ss'){
   this.element = document.getElementById(div_id);
-
-  <span class="eq_display_area" style="display:block;">
-    <center>
+  String.raw'<span class="eq_display_area" style="display:block;">
+  <center>
         <p id="displayed_eq1"></p>
         <p id="displayed_eq2"></p>
     </center>
   </span>
+  ';
 
+  this.update = function(type){
+    var vals = document.getElementById(this.div_id+"_"+type+"_input").val();
+    vals = vals.replace(' ', '');
+    var mat;
+    try{
+        mat = eval(vals);
+    }
+  }
 
+}
+
+/*Input is a giant box with multiline rather than other stuff*/
+
+function SS_Matrix_Input_Box(div_id,discrete = "CT",type='ss'){
 }
 
 /* 

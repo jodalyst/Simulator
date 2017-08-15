@@ -51,8 +51,222 @@ Basic object to contain/house/represent a state space object
 This does not handle simulation, which is a different thing entirely...this lists attributes of the system itself
 */
 
+function dss(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
+    // # of states dictated by A matrix
+    // number of inputs dictated by B matrix
+    // number of outputs dictated by C matrix
+    // everything else must agree
 
-function SS(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
+    //need to make deep copies of input arrays.
+    this.A = numeric.clone(Ain);
+    this.B = numeric.clone(Bin);
+    this.C = numeric.clone(Cin);
+    this.D;
+    this.type = typein;
+    this.y;
+    this.x;
+    this.u;
+    console.log(typein);
+    if (typein != "CT" && typein != "DT"){
+        console.log("Type must be either DT or CT!!!");
+        return false;
+    }
+    //checks on matrices!:  
+    if (numeric.dim(this.A)[0] != numeric.dim(this.A)[1]){
+        console.log("A must be square!");
+        return false;
+    }
+    //E matrix setup!
+    this.E=0;
+    if (Ein==null){
+        var size = numeric.dim(this.A)[0];
+        this.E = numeric.identity(size);
+    }else{
+        this.E = numeric.clone(Ein);
+    }
+    if (numeric.dim(this.E)[0] != numeric.dim(this.E)[1]){
+        console.log("E must be square!");
+        return false;
+    }
+    if (numeric.dim(this.E)[0] != numeric.dim(this.A)[0] || numeric.dim(this.E)[1] != numeric.dim(this.A)[1]){
+        console.log("Size of E and A matrices must agree");
+        return false;
+    }
+    //A vs. B matrix dimension setup!
+    if (numeric.dim(this.A)[0] != numeric.dim(this.B)[0]){
+        console.log("Number of A rows and B rows must agree!");
+        return false;
+    }
+    //x (state vector) setup:
+    //x vector filled in based on A matrix dimensions...not B.
+    this.x = [];
+    for (var i=0; i<numeric.dim(this.A)[0]; i++){
+        this.x.push(0);
+    }
+    //u (input) setup:
+    if (numeric.dim(this.B).length==1){
+        this.u = [0];
+    }else{
+        for (var i=0; i<numeric.dim(this.B)[1];i++){
+            this.u.push(0);
+        }
+    }
+    //y (output) setup:
+    if (numeric.dim(this.C).length==1){
+        this.y = [0];
+        console.log(numeric.dim(this.C)[0]);
+        console.log(numeric.dim(this.x)[0]);
+        if (numeric.dim(this.C)[0] !== numeric.dim(this.x)[0]){
+            console.log("Number of C cols must agree with number of states");
+            return false;
+        }
+    }else{
+        if (numeric.dim(this.C).length[1] != numeric.dim(this.x)[0]){
+            console.log("Number of C cols must agree with number of states");
+            return false;
+        }
+        for (var i=0; i<numeric.dim(this.C)[0]; i++){
+            y.push(0);
+        }
+    }
+    //D matrix checks...annoyingly complex
+    if (Din == null){
+        this.D = numeric.diag(this.u);
+    }else{
+        this.D = numeric.clone(Din);
+        if (numeric.dim(this.D).length ==1){ //check if a n by 1 or 1 by n matrix
+            if (numeric.dim(this.y)[0]!=1){ //check with y
+                if (numeric.dim(this.y)[0] != numeric.dim(this.D)[0]){
+                    console.log("D dimensions not matching with y dimensions");
+                    return false;
+                }
+            }else if(numeric.dim(this.u)[0] != 1){ //check with u
+                if (numeric.dim(this.u)[0] != numeric.dim(this.D)[0]){
+                    console.log("D dimensions not matching with u dimensions");
+                    return false;
+                }
+            }else{
+                if (numeric.dim(this.D)[0] !=1){
+                    console.log("Error in D dimensions [should be 1 by 1]");
+                    return false;
+                }
+            }
+        }else{
+            if (numeric.dim(this.D)[0] != numeric.dim(this.y)[0]){
+                console.log("Error! D matrix dimensions do not agree with y matrix dimensions");
+                return false;
+            }if (numeric.dim(this.D)[1] != numeric.dim(this.u)[0]){
+                console.log("Error! D matrix dimensions do not agree with u matrix dimensions");
+                return false;
+            }
+        }
+    }
+    console.log('setup!');
+    console.log(this.A);
+    console.log(this.B);
+    console.log(this.C);
+    console.log(this.D);
+    this.isCT = function(){
+        return this.type == "CT";
+    }
+    this.isStable = function(){
+        setup = this.poles();
+        for (var i = 0; i<setup.length; i++){
+            if (this.isCT()){
+                if (setup[i]>0){
+                    return false;
+                }
+            }else{
+                if (abs(setup[i])>1){
+                    return false;
+                }
+            }
+        }
+        //survived the gauntlet
+        return true;
+    }
+
+    this.poles = function(){
+        var Einv = numeric.inv(this.E);
+        var Aeff = numeric.dot(this.E,this.A);
+        return numeric.eig(Aeff);
+    } 
+
+    this.zeros = function(){
+    }
+    this.ctrb = function(){
+        var n = this.A.length;
+        var builder = [];
+        for (var i = 0; i<n; i++){
+            if (i==0){
+                builder.push(this.B);
+            }else{
+                var starter = numeric.clone(this.A);
+                for (var j = 0; j< i; j++){
+                    starter = numeric.dot(starter,this.A);
+                }
+                starter = numeric.dot(starter,this.B);
+                //should we clone here?
+                builder.push(numeric.clone(starter));
+            }
+        }
+        var C = numeric.transpose(builder);
+        return rank(C)===n;
+
+    }
+    this.obsv = function(){
+        var n = this.A.length;
+        var O = [];
+        for (var i = 0; i<n; i++){
+            if (i==0){
+                builder.push(this.C);
+            }else{
+                var starter = numeric.clone(this.C);
+                for (var j = 0; j< i; j++){
+                    starter = numeric.dot(starter,this.A);
+                }
+                builder.push(starter);
+            }
+        }
+        //should not need to transpose here.
+        var O = numeric.transpose(builder);
+        return rank(O)===n;
+    }
+    this.display = function(matrix){
+        switch(matrix){
+            case "A":
+                var 
+                break;
+            case "B":
+                break;
+            case "C":
+                break;
+            case "D":
+                break;
+            case "E":
+                break;
+            case "x":
+                break;
+            case "y":
+                break;
+            case "u":
+                break;
+        }
+
+    }
+    this.display_all = function(mode=ss){
+        var A = this.display("A");
+        var B = this.display("B");
+        var C = this.display("C");
+        var D = this.display("D");
+        var x = this.display("x");
+        var y = this.display("y");
+        var u = this.display("u");
+    }
+}
+
+
+function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
     // # of states dictated by A matrix
     // number of inputs dictated by B matrix
     // number of outputs dictated by C matrix
@@ -77,22 +291,7 @@ function SS(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
         console.log("A must be square!");
         return false;
     }
-    //E matrix setup!
-    this.E=0;
-    if (Ein==null){
-    	var size = numeric.dim(this.A)[0];
-        this.E = numeric.identity(size);
-    }else{
-        this.E = numeric.clone(Ein);
-    }
-    if (numeric.dim(this.E)[0] != numeric.dim(this.E)[1]){
-        console.log("E must be square!");
-        return false;
-    }
-    if (numeric.dim(this.E)[0] != numeric.dim(this.A)[0] || numeric.dim(this.E)[1] != numeric.dim(this.A)[1]){
-        console.log("Size of E and A matrices must agree");
-        return false;
-    }
+
     //A vs. B matrix dimension setup!
     if (numeric.dim(this.A)[0] != numeric.dim(this.B)[0]){
         console.log("Number of A rows and B rows must agree!");
@@ -188,9 +387,7 @@ function SS(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
     }
 
     this.poles = function(){
-        var Einv = numeric.inv(this.E);
-        var Aeff = numeric.dot(this.E,this.A);
-        return numeric.eig(Aeff);
+        return numeric.eig(this.A);
     } 
 
     this.zeros = function(){
@@ -243,8 +440,6 @@ function SS(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
             case "C":
                 break;
             case "D":
-                break;
-            case "E":
                 break;
             case "x":
                 break;

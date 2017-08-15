@@ -1,0 +1,182 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+<link rel="stylesheet" href="../../css/notes.css">
+<link rel="stylesheet" href="../../css/gui.css">
+
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+</head>
+
+
+<body>
+
+<style>
+#motor_box
+{
+    margin: auto;
+    margin-left: 30px;
+    margin-top: 30px;
+    width: 300px;
+    border: 1px solid #ccc;
+}
+#container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+</style>
+
+
+<style>
+#motor_box
+{
+    margin: auto;
+    margin-left: 30px;
+    margin-top: 30px;
+    width: 300px;
+    border: 1px solid #ccc;
+}
+</style>
+
+<h1>Pole Picker</h1>
+
+<p>Below is a simple html/javascript/D3 pole-picker/reason to mess with SVGs that I wrote up for that course.  It isn't particularly ground-breaking javascript or anything, but it works well for its intended purpose and the same general idea can be used for any sort of educational platform with javascrip hooks.</p>
+
+<button id="clearit" class="action-button-text">Clear Placed Poles</button>
+
+<svg id="r_locus1" width="640" height="480" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - http://svg-edit.googlecode.com/ -->
+ <defs>
+  <marker id="se_marker_start_svg_3" markerUnits="strokeWidth" orient="auto" viewBox="0 0 100 100" markerWidth="5" markerHeight="5" refX="50" refY="50">
+   <path id="svg_8" d="m0,50l100,40l-30,-40l30,-40l-100,40z" fill="#000000" stroke="#000000" stroke-width="10"/>
+  </marker>
+  <marker id="se_marker_end_svg_3" markerUnits="strokeWidth" orient="auto" viewBox="0 0 100 100" markerWidth="5" markerHeight="5" refX="50" refY="50">
+   <path id="svg_9" d="m100,50l-100,40l30,-40l-30,-40l100,40z" fill="#000000" stroke="#000000" stroke-width="10"/>
+  </marker>
+  <marker id="se_marker_start_svg_4" markerUnits="strokeWidth" orient="auto" viewBox="0 0 100 100" markerWidth="5" markerHeight="5" refX="50" refY="50">
+   <path id="svg_10" d="m0,50l100,40l-30,-40l30,-40l-100,40z" fill="#000000" stroke="#000000" stroke-width="10"/>
+  </marker>
+  <marker id="se_marker_end_svg_4" markerUnits="strokeWidth" orient="auto" viewBox="0 0 100 100" markerWidth="5" markerHeight="5" refX="50" refY="50">
+   <path id="svg_11" d="m100,50l-100,40l30,-40l-30,-40l100,40z" fill="#000000" stroke="#000000" stroke-width="10"/>
+  </marker>
+ </defs>
+ <g>
+  <title>Layer 1</title>
+  <circle x2="320" fill="none" stroke="#000000" stroke-width="5" stroke-linejoin="null" stroke-linecap="null" cx="320" cy="240" r="150" id="svg_2" stroke-dasharray="2,2"/>
+  <line fill="none" stroke="#000000" stroke-width="5" stroke-linejoin="null" stroke-linecap="null" x1="120" y1="240" x2="520" y2="240" id="svg_3" marker-start="url(#se_marker_start_svg_3)" marker-end="url(#se_marker_end_svg_3)"/>
+  <line fill="none" stroke="#000000" stroke-width="5" stroke-linejoin="null" stroke-linecap="null" x1="320" y1="440" x2="320" y2="40" id="svg_4" marker-start="url(#se_marker_start_svg_4)" marker-end="url(#se_marker_end_svg_4)"/>
+  <text fill="#000000" stroke="#000000" stroke-width="0" stroke-dasharray="2,2" stroke-linejoin="null" stroke-linecap="null" x="520" y="280" id="svg_5" font-size="24" font-family="sans-serif" text-anchor="middle" xml:space="preserve">Re</text>
+  <text y2="240" fill="#000000" stroke="#000000" stroke-width="0" stroke-dasharray="2,2" stroke-linejoin="null" stroke-linecap="null" x="350" y="40" id="svg_6" font-size="24" font-family="sans-serif" text-anchor="middle" xml:space="preserve">Im</text>
+  <text fill="#000000" stroke="#000000" stroke-width="0" stroke-dasharray="2,2" stroke-linejoin="null" stroke-linecap="null" x="490" y="30" id="pole" font-size="24" font-family="sans-serif" text-anchor="middle" xml:space="preserve">0.0</text>
+ </g>
+</svg>
+<h4>Poles Placed</h4>
+<ul id="placedpoles">
+</ul>
+<script>
+var svg2 = d3.select("#r_locus1");
+svg2.on("mousemove", poleloc);
+svg2.on("mousedown.log",poleplace);
+var placed_poles = [];
+var MAX_NUM_POLES = 6; //maximum number of poles.
+var conv1 = 1.0/150;//from svg2 drawing
+var conv2 = 1.0/150;//unit circle radius is 150
+var offset1 = 320;
+var offset2 = 240;
+
+function convert_to_complex(loc){
+    var newx = (loc[0]-offset1)*conv1;
+    var newy = -(loc[1]-offset2)*conv2;
+    return [newx,newy];
+};
+function convert_from_complex(pole){
+  var newx = 1.0*pole[0]/conv1+offset1;
+  var newy = -1.0*pole[1]/conv2+offset2;
+  return [newx,newy];
+}
+    
+  
+function poleloc(d, i) {
+  var spot = d3.mouse(this);
+  svg2.select("#pole").text(function(){
+    var listo = convert_to_complex(spot);
+    var re = listo[0];
+    var im = listo[1];
+    if (im <0){
+        return re.toFixed(2)+ " "+im.toFixed(2)+"j";
+    }else{
+        return re.toFixed(2) + " + " + im.toFixed(2)+"j";
+    }
+  });
+};
+function poleplace() {
+  var spot = d3.mouse(this);
+  var num = 1;
+  var diff = Math.abs(spot[1]-offset2)
+  //console.log(diff);
+  if (diff >10){
+    num = 2; //adding complex pair
+  }
+  //console.log(num);
+  if (placed_poles.length + num > MAX_NUM_POLES){
+    var warning = svg2.append("text").attr("id","nono").attr("fill", "red").text("Limited to " + String(MAX_NUM_POLES)+" Poles!").attr("x",50).attr("y",100);
+    svg2.selectAll("#nono").transition().duration(1000)
+    .style("opacity","0").remove();
+  }else{
+     if (num ==2){
+        var listo = convert_to_complex(spot);
+        placed_poles.push(listo);
+        var re = listo[0];
+        var im = listo[1];
+        svg2.append("circle").attr("cx", spot[0]).attr("cy", spot[1]).attr("r", 5).style("fill", "red").attr("class","polespot");
+      if (im<0){
+        $("#placedpoles").append("<li>"+re.toFixed(2) + " " + im.toFixed(2)+"j</li>");
+
+      }else{
+        $("#placedpoles").append("<li>"+re.toFixed(2) + " + " + im.toFixed(2)+"j</li>");
+      }
+        var cc_listo = [listo[0],-1*listo[1]];
+        placed_poles.push(cc_listo);
+        re = cc_listo[0];
+        im = cc_listo[1];
+        svg2.append("circle").attr("cx", spot[0]).attr("cy", offset2-(spot[1]-offset2)).attr("r", 5).style("fill",  "red").attr("class","polespot");
+      if (im<0){
+        $("#placedpoles").append("<li>"+re.toFixed(2) + " " + im.toFixed(2)+"j</li>");
+
+      }else{
+        $("#placedpoles").append("<li>"+re.toFixed(2) + " + " + im.toFixed(2)+"j</li>");
+      }
+        //$("#placedpoles").append("<li>"+re.toFixed(2) + " + j" + im.toFixed(2)+"</li>"); //Old version
+     }else{
+        var listo = convert_to_complex(spot);
+        placed_poles.push(listo);
+        var re = listo[0];
+        var im = listo[1];
+        svg2.append("circle").attr("cx", spot[0]).attr("cy", offset2).attr("r", 5). style("fill", "red").attr("class","polespot");
+      if (im<0){
+        $("#placedpoles").append("<li>"+re.toFixed(2) + " " + im.toFixed(2)+"j</li>");
+
+      }else{
+        $("#placedpoles").append("<li>"+re.toFixed(2) + " + " + im.toFixed(2)+"j</li>");
+      }
+        //$("#placedpoles").append("<li>"+re.toFixed(2) + "</li>");
+    }
+  }
+  //console.log(placed_poles);
+};
+  $("#clearit").click(function(){
+    placed_poles=[];
+    svg2.selectAll(".polespot").remove();
+    $("#placedpoles").children().remove();
+  });
+  </script>
+
+<center><p>Last Edited 5/13/2017 jds</p></center>
+</body>
+</html>

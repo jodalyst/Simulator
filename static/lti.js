@@ -19,26 +19,101 @@ var Ad = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
 var Bd = [0,0,1];
 var Cd = [1,0,0];
 
-/*Specify inputs to create these on the fly*/
-function SS_Matrix_Input(div_id,discrete = "CT",type='ss'){
-  this.element = document.getElementById(div_id);
-  String.raw'<span class="eq_display_area" style="display:block;">
-  <center>
-        <p id="displayed_eq1"></p>
-        <p id="displayed_eq2"></p>
-    </center>
-  </span>
-  ';
-
-  this.update = function(type){
-    var vals = document.getElementById(this.div_id+"_"+type+"_input").val();
-    vals = vals.replace(' ', '');
-    var mat;
-    try{
-        mat = eval(vals);
+/*Specify inputs to create these on the fly
+div_id: specifies the dom div to attach inputs and renders to
+sso: the ss or dss object which you are connecting this input set to
+ctdt: 
+*/
+function ssmi(div_id,sso,ctdt = "CT",type='ss'){
+    if (ctdt=="DT" && type=="dss"){
+        console.log("cannot have discrete time system with E matrix!");
+        return false;
     }
-  }
+    this.element = document.getElementById(div_id);
+    // var inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[[x_1],[x_2],[x_3]]" name="x_input_${div_id}" id="x_input_${div_id}" class="matrix" maxlength="100" /><br></br>;
+    // inputs += `\\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_input_${div_id}" id="y_input_${div_id}" class="matrix" maxlength="100" /><br></br>;
+    // inputs += `\\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_input_${div_id}" id="u_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
+    // inputs += `</p><p>';
+    // if (type=='dss')inputs += '\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,4,0],[0,0,1]]" name="E_input_${div_id}" id="E_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
+    // inputs+= '\\(\\textbf{A}\\): <input type="text" size="50" value="[[1,0,2],[5,4,2],[0,0,1]]" name="A_input_${div_id}" id="A_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
+    // inputs += '\\(\\textbf{B}\\): <input type="text" size="50" value="[[1],[5],[6]]" name="B_input_${div_id}" id="B_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
+    // inputs += '\\(\\textbf{C}\\): <input type="text" size="50" value="[[1,0,3]]" name="C_input_${div_id}" id="C_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
+    // inputs += '\\(\\textbf{D}\\): <input type="text" size="50" value="[[0]]" name="D_input_${div_id}" id="D_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
+    // inputs += '</center></p>';
 
+    // var displays = '<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>';
+
+    var inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[[x_1],[x_2],[x_3]]" name="x_input_${div_id}" id="x_input_${div_id}" class="matrix_input" maxlength="100" /><br></br>
+    \\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_input_${div_id}" id="y_input_${div_id}" class="matrix_input" maxlength="100" /><br></br>
+    \\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_input_${div_id}" id="u_input_${div_id}" class="matrix_input" maxlength="100" /><br></br>
+    </p><p>`;
+    if (type=='dss')inputs += `\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,4,0],[0,0,1]]" name="E_input_${div_id}" id="E_input_${div_id}" class="matrix_input" maxlength="100" /><br></br>`;
+    inputs+= `\\(\\textbf{A}\\): <input type="text" size="50" value="[[1,0,2],[5,4,2],[0,0,1]]" name="A_input_${div_id}" id="A_input_${div_id}" class="matrix_input" maxlength="100" /><br></br>
+    \\(\\textbf{B}\\): <input type="text" size="50" value="[[1],[5],[6]]" name="B_input_${div_id}" id="B_input_${div_id}" class="matrix_input" maxlength="100" /><br></br>
+    \\(\\textbf{C}\\): <input type="text" size="50" value="[[1,0,3]]" name="C_input_${div_id}" id="C_input_${div_id}" class="matrix_input" maxlength="100" /><br></br>
+    \\(\\textbf{D}\\): <input type="text" size="50" value="[[0]]" name="D_input_${div_id}" id="D_input_${div_id}" class="matrix_input" maxlength="100" /><br></br>
+    </center></p>`;
+
+    var displays = '<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>';
+
+
+
+
+    this.element.innerHTML = inputs+displays;
+
+    // this.update = function(type){
+    //     var vals = document.getElementById(this.div_id+"_"+type+"_input").val();
+    //     vals = vals.replace(' ', '');
+    //     var mat;
+    //     try{
+    //         mat = eval(vals);
+    //     }catch(err)
+    //         console.log('not full matrix');
+    // }
+
+
+};
+
+document.getElementsByClassName("matrix_input").onclick(function(){
+
+
+
+});
+
+
+function render_matrix(matrix,r,c){
+    if (c==1 && matrix.length != r) return "";
+    if (r==1 && matrix.length != c) return "";
+    var display_string = "\\begin{bmatrix}";
+    if (c == 1){
+        for (var i=0; i<matrix.length; i++){
+            display_string += matrix[i];
+            if (i < matrix.length-1){
+                display_string +="&";
+            }
+        }
+    }else if (r == 1){
+        for (var i=0; i<matrix.length; i++){
+            display_string += matrix[i];
+            if (i < matrix.length-1){
+                display_string +="\\\\";
+            }
+        }
+    }else{
+        for (var i=0; i<matrix.length; i++){
+            for (var j=0; j<matrix[i].length;j++){
+                display_string += matrix[i][j];
+                if (j < matrix[i].length-1){
+                    display_string +="&";
+                }
+            }
+            if (i < matrix.length-1){
+                display_string +="\\\\";
+            }
+        }
+    }
+    display_string += "\\end{bmatrix}";
+    return display_string;
 }
 
 /*Input is a giant box with multiline rather than other stuff*/
@@ -235,7 +310,7 @@ function dss(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
     this.display = function(matrix){
         switch(matrix){
             case "A":
-                var 
+                var x=5;
                 break;
             case "B":
                 break;
@@ -281,6 +356,9 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
     this.y;
     this.x;
     this.u;
+    this.x_rep = [];
+    this.y_rep  = [];
+    this.u_rep = [];
     console.log(typein);
     if (typein != "CT" && typein != "DT"){
     	console.log("Type must be either DT or CT!!!");
@@ -430,10 +508,36 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
         var O = numeric.transpose(builder);
         return rank(O)===n;
     }
+    this.update = function(matrix,value){
+        switch(matrix){
+            case "A":
+                this.A = numeric.clone(value);
+                break;
+            case "B":
+                this.B = numeric.clone(value);
+                break;
+            case "C":
+                this.C = numeric.clone(value);
+                break;
+            case "D":
+                this.D = numeric.clone(value);
+                break;
+            case "x":
+                this.x_rep = numeric.clone(value);
+                break;
+            case "y":
+                this.y_rep = numeric.clone(value);
+                break;
+            case "u":
+                this.u_rep = numeric.clone(value);
+                break;
+        }
+    }
+
     this.display = function(matrix){
         switch(matrix){
             case "A":
-                var 
+                var x=5;
                 break;
             case "B":
                 break;
@@ -465,40 +569,6 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
 mainly used to clarify ambiguity of how row and column vectors are stored
 identically in the numeric.js format */
 
-function render_matrix(matrix,r,c){
-    if (c==1 && matrix.length != r) return "";
-    if (r==1 && matrix.length != c) return "";
-    var display_string = "\\begin{bmatrix}";
-    if (c == 1){
-        for (var i=0; i<matrix.length; i++){
-            display_string += matrix[i];
-            if (i < matrix.length-1){
-                display_string +="&";
-            }
-        }
-    }else if (r == 1){
-        for (var i=0; i<matrix.length; i++){
-            display_string += matrix[i];
-            if (i < matrix.length-1){
-                display_string +="\\\\";
-            }
-        }
-    }else{
-        for (var i=0; i<matrix.length; i++){
-            for (var j=0; j<matrix[i].length;j++){
-                display_string += matrix[i][j];
-                if (j < matrix[i].length-1){
-                    display_string +="&";
-                }
-            }
-            if (i < matrix.length-1){
-                display_string +="\\\\";
-            }
-        }
-    }
-    display_string += "\\end{bmatrix}";
-    return display_string;
-}
 
 function feedback (sso, K){
     //create a new sso and return it based off of hte feedback

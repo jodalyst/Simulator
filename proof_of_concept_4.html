@@ -38,6 +38,10 @@ ssmi(div_id="plotbox",ctdt = "CT",type='ss');
   </div>
 
 
+  <div >
+    <div id="plotbox2"></div>
+  </div>
+
 Matrices can also just be created in the source code like so:
 
 <pre>
@@ -63,6 +67,10 @@ console.log(esys.ctrb());
 console.log(esys);
 //Built using more solid Matrix library!!!
 var esysinput = new ssmi(div_id="plotbox",sso=esys,spec=false, ctdt = "CT",type='ss'); 
+
+var esys2 = new ss(A=[[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]],B=[0,0,1], C=[1,0,0],D=null,ctdt="DT");
+var esys2input = new ssmi(div_id="plotbox2",sso=esys2,spec=true, ctdt = "DT",type='ss'); 
+
 
 var sys = new ss([[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]],[0,0,1], [1,0,0]);
 console.log(sys);

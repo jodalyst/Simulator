@@ -75,7 +75,12 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
         vals = vals.replace(' ', '');
         console.log(sso);
         if (matrix ==="x" || matrix==="y" || matrix==="u"){
-            sso.update(matrix,vals);
+            vals = vals.replace('[','').replace(']','').split(',');
+            var tempm = [];
+            for(var i =0; i<vals.length;i++){
+                tempm.push(vals[i]);
+            }
+            sso.update(matrix,tempm);
         }else{
             try{
                 mat = eval(vals);
@@ -109,10 +114,14 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
         bottom+="$$";
         console.log("A matrix");
         console.log(sso.A);
-        document.getElementById('displayed_eq1_'+div_id).innerHTML = top;
-        document.getElementById('displayed_eq2_'+div_id).innerHTML = bottom;
-        MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq1_${div_id}`]);
-        MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq2_${div_id}`]);
+        if (matrix=="A"||matrix=="B"||matrix=="x"||matrix=="u"){
+            document.getElementById('displayed_eq1_'+div_id).innerHTML = top;
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq1_${div_id}`]);
+        }if(matrix=="C"||matrix=="D"||matrix=="x"||matrix=="y"||matrix=="u"){
+            document.getElementById('displayed_eq2_'+div_id).innerHTML = bottom;
+            MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq2_${div_id}`]);
+        }
+
     };
 
 
@@ -155,15 +164,19 @@ function render_matrix(matrix,type){
             }
         }
     }else{
-        for (var i=0; i<matrix.length; i++){
-            for (var j=0; j<matrix[i].length;j++){
-                display_string += String(matrix[i][j]);
-                if (j < matrix[i].length-1){
-                    display_string +="&";
+        if (numeric.dim(matrix).length==1 && numeric.dim(matrix)[0]==1){
+            display_string+=String(matrix[0]);
+        }else{
+            for (var i=0; i<matrix.length; i++){
+                for (var j=0; j<matrix[i].length;j++){
+                    display_string += String(matrix[i][j]);
+                    if (j < matrix[i].length-1){
+                        display_string +="&";
+                    }
                 }
-            }
-            if (i < matrix.length-1){
-                display_string +="\\\\";
+                if (i < matrix.length-1){
+                    display_string +="\\\\";
+                }
             }
         }
     }
@@ -396,7 +409,7 @@ function dss(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
 }
 
 
-function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
+function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     // # of states dictated by A matrix
     // number of inputs dictated by B matrix
     // number of outputs dictated by C matrix
@@ -407,7 +420,7 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
     this.B = numeric.clone(Bin);
     this.C = numeric.clone(Cin);
     this.D;
-    this.type = typein;
+    this.type = ctdt;
     this.y;
     this.x;
     this.u;
@@ -415,7 +428,7 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
     this.x_repn = []; //next x rep
     this.y_rep  = []; //y rep
     this.u_rep = []; //u rep
-    if (typein != "CT" && typein != "DT"){
+    if (ctdt != "CT" && ctdt != "DT"){
     	console.log("Type must be either DT or CT!!!");
     	return false;
     }
@@ -464,7 +477,7 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
     }
     //D matrix checks...annoyingly complex
     if (Din == null){
-    	this.D = numeric.diag(this.u);
+    	this.D = numeric.diag(this.u.length);
     }else{
     	this.D = numeric.clone(Din);
     	if (numeric.dim(this.D).length ==1){ //check if a n by 1 or 1 by n matrix

@@ -24,27 +24,16 @@ div_id: specifies the dom div to attach inputs and renders to
 sso: the ss or dss object which you are connecting this input set to
 ctdt: 
 */
-var myFunction = function(arg){
-    var matrix = arg.id[0];
-    console.log("shit");
-    vals = arg.value;
-    vals = vals.replace(' ', '');
-    try{
-        mat = eval(vals);
-        console.log(vals);
-        //sso.update(matrix,vals);
-    }catch(err){
-        console.log("not a full matrix");
-        //sso.update(matrix,[]);
-    }
-}
 
 
-function ssmi(div_id,sso,ctdt = "CT",type='ss'){
+
+function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     if (ctdt=="DT" && type=="dss"){
         console.log("cannot have discrete time system with E matrix!");
         return false;
     }
+    var sso = sso;
+    console.log(sso);
     this.element = document.getElementById(div_id);
     // var inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[[x_1],[x_2],[x_3]]" name="x_input_${div_id}" id="x_input_${div_id}" class="matrix" maxlength="100" /><br></br>;
     // inputs += `\\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_input_${div_id}" id="y_input_${div_id}" class="matrix" maxlength="100" /><br></br>;
@@ -58,32 +47,66 @@ function ssmi(div_id,sso,ctdt = "CT",type='ss'){
     // inputs += '</center></p>';
 
     // var displays = '<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>';
-
-    var inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[[x_1],[x_2],[x_3]]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" onkeypress="myFunction(this)" maxlength="100" /><br></br>
-    \\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_${div_id}" id="y_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-    \\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_${div_id}" id="u_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-    </p><p>`;
-    if (type=='dss')inputs += `\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,4,0],[0,0,1]]" name="E_${div_id}" id="E_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>`;
+    var inputs;
+    if (spec){
+        inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[x_1,x_2,x_3]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+        \\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_${div_id}" id="y_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+        \\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_${div_id}" id="u_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+        </p><p>`;
+    }else{
+        inputs = "<p><center>";
+    }
+    if (type=='dss')inputs += `\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,1,0],[0,0,1]]" name="E_${div_id}" id="E_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>`;
     inputs+= `\\(\\textbf{A}\\): <input type="text" size="50" value="[[1,0,2],[5,4,2],[0,0,1]]" name="A_${div_id}" id="A_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-    \\(\\textbf{B}\\): <input type="text" size="50" value="[[1],[5],[6]]" name="B_${div_id}" id="B_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-    \\(\\textbf{C}\\): <input type="text" size="50" value="[[1,0,3]]" name="C_${div_id}" id="C_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-    \\(\\textbf{D}\\): <input type="text" size="50" value="[[0]]" name="D_${div_id}" id="D_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+    \\(\\textbf{B}\\): <input type="text" size="50" value="[1,2,3]" name="B_${div_id}" id="B_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+    \\(\\textbf{C}\\): <input type="text" size="50" value="[1,2,3]" name="C_${div_id}" id="C_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+    \\(\\textbf{D}\\): <input type="text" size="50" value="[0]" name="D_${div_id}" id="D_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     </center></p>`;
 
-    var displays = '<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>';
+    var displays = `<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>`;
 
     this.element.innerHTML = inputs+displays;
+    console.log(sso);
+
     var process = function(){
         var matrix = this.id[0];
-        console.log("shit");
+        console.log(matrix);
         vals = this.value;
         vals = vals.replace(' ', '');
-        //mat = eval(vals);
-        sso.update(matrix,vals);
-        // }catch(err){
-        //     console.log("not a full matrix");
-        //     sso.update(matrix,[]);
-        // }
+        console.log(sso);
+        if (matrix ==="x" || matrix==="y" || matrix==="u"){
+            sso.update(matrix,vals);
+        }else{
+            try{
+                mat = eval(vals);
+                sso.update(matrix,vals);
+            }catch(err){
+                console.log("not a full matrix");
+                sso.update(matrix,[]);
+            }
+        }
+        var top = "";
+        if(type==='dss') top +=render_matrix(sso.E,sso.E.length,sso.E[0].length);
+        top+=render_matrix(sso.x_repn,"x");
+        if(ctdt==="CT") top += "\\cdot\\frac{d}{dt}";
+        top += "=";
+        top+=render_matrix(sso.A,"A");
+        top+=render_matrix(sso.x_rep,"x");
+        top += "+";
+        top+=render_matrix(sso.B,"B");
+        top+=render_matrix(sso.u_rep,"u");
+        var bottom = "";
+        bottom += render_matrix(sso.y_rep,"y");
+        bottom += "=";
+        bottom += render_matrix(sso.C,"C");
+        bottom+=render_matrix(sso.x_rep,"x");
+        bottom += "+";
+        bottom += render_matrix(sso.D,"D");
+        bottom += render_matrix(sso.u_rep,"u");
+        document.getElementById('displayed_eq1_'+div_id).innerHTML = top;
+        document.getElementById('displayed_eq2_'+div_id).innerHTML = bottom;
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq1_${div_id}`]);
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq2_${div_id}`]);
     };
 
 
@@ -93,74 +116,42 @@ function ssmi(div_id,sso,ctdt = "CT",type='ss'){
     for (var i = 0; i< this.ourinputs.length; i++){
         this.ourinputs[i].addEventListener('keypress', process);
     }
-    //this.ourinputs.addEventListener('keypress', 
-
-
-    // this.update = function(type){
-    //     var vals = document.getElementById(this.div_id+"_"+type+"_input").val();
-    //     vals = vals.replace(' ', '');
-    //     var mat;
-    //     try{
-    //         mat = eval(vals);
-    //     }catch(err)
-    //         console.log('not full matrix');
-    // }
+ 
 
 
 };
 
-var ourinputs = document.getElementsByClassName(`matrix_input`);
-ourinputs.onclick= function(){
-    var matrix = this.id[0];
-    console.log("shit");
-    vals = this.val();
-    vals = vals.replace(' ', '');
-    try{
-        mat = eval(vals);
-        sso.update(matrix,vals);
-    }catch(err){
-        console.log("not a full matrix");
-        sso.update(matrix,[]);
-    }
-};
-
-// document.body.onclick = function (e) {
-//     console.log("hey");
-//     e = window.event || e;
-//     //get target dom object reference
-//     var targetDomObject = e.target || e.srcElement;
-
-//     //extra checks to make sure object exists and contains the class of interest
-//     if ((targetDomObject) && (targetDomObject.classList) && (targetDomObject.classList.contains("matrix_input"))) {
-//         var number = targetDomObject.getAttribute("data-number");
-//         console.log(number);
-//     }
-// }
 
 
-
-function render_matrix(matrix,r,c){
-    if (c==1 && matrix.length != r) return "";
-    if (r==1 && matrix.length != c) return "";
+function render_matrix(matrix,type){
+    // if (c==1 && matrix.length != r) return "";
+    // if (r==1 && matrix.length != c) return "";
     var display_string = "\\begin{bmatrix}";
-    if (c == 1){
-        for (var i=0; i<matrix.length; i++){
-            display_string += matrix[i];
-            if (i < matrix.length-1){
-                display_string +="&";
-            }
-        }
-    }else if (r == 1){
+    if (type==="x" || type==="y" || type==="u"){
         for (var i=0; i<matrix.length; i++){
             display_string += matrix[i];
             if (i < matrix.length-1){
                 display_string +="\\\\";
             }
         }
+    }else if (type === "B" && numeric.dim(matrix).length==1){
+        for (var i=0; i<matrix.length; i++){
+            display_string += String(matrix[i]);
+            if (i < matrix.length-1){
+                display_string +="\\\\";
+            }
+        }
+    }else if (type === "C" && numeric.dim(matrix).length==1){
+        for (var i=0; i<matrix.length; i++){
+            display_string += String(matrix[i]);
+            if (i < matrix.length-1){
+                display_string +="&";
+            }
+        }
     }else{
         for (var i=0; i<matrix.length; i++){
             for (var j=0; j<matrix[i].length;j++){
-                display_string += matrix[i][j];
+                display_string += String(matrix[i][j]);
                 if (j < matrix[i].length-1){
                     display_string +="&";
                 }
@@ -414,10 +405,10 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
     this.y;
     this.x;
     this.u;
-    this.x_rep = [];
-    this.y_rep  = [];
-    this.u_rep = [];
-    console.log(typein);
+    this.x_rep = []; //x representation
+    this.x_repn = []; //next x rep
+    this.y_rep  = []; //y rep
+    this.u_rep = []; //u rep
     if (typein != "CT" && typein != "DT"){
     	console.log("Type must be either DT or CT!!!");
     	return false;
@@ -497,11 +488,38 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
     		}
     	}
     }
-    console.log('setup!');
-    console.log(this.A);
-    console.log(this.B);
-    console.log(this.C);
-    console.log(this.D);
+    for(var i=0; i<this.x.length;i++){
+        if (this.type=="CT"){
+            this.x_rep.push(`x_${i+1}`);
+            this.x_repn.push(`x_${i+1}`);
+        }else{
+            this.x_rep.push(`x_${i+1}[n]`);
+            this.x_repn.push(`x_${i+1}[n+1]`);
+        }
+    }
+    if (this.y.length==1){
+        this.y_rep.push("y");
+    }else{
+        for (var i=0; i<this.y.length;i++){
+            if (this.type=="CT"){
+                this.y_rep.push(`y_${i+1}`);
+            }else{
+                this.y_rep.push(`y_${i+1}[n]`);
+            }
+        }
+    }
+    if (this.u.length==1){
+        this.u_rep.push("u");
+    }else{
+        for (var i=0; i<this.u.length;i++){
+            if (this.type=="CT"){
+                this.y_rep.push(`u_${i+1}`);
+            }else{
+                this.y_rep.push(`u_${i+1}[n]`);
+            }
+        }
+    }
+
     this.isCT = function(){
     	return this.type == "CT";
     }
@@ -581,13 +599,13 @@ function ss(Ain,Bin, Cin,Din=null,typein = "CT"){
                 this.D = numeric.clone(value);
                 break;
             case "x":
-                this.x_rep = numeric.clone(value);
+                this.x_rep = value;
                 break;
             case "y":
-                this.y_rep = numeric.clone(value);
+                this.y_rep = value;
                 break;
             case "u":
-                this.u_rep = numeric.clone(value);
+                this.u_rep = value;
                 break;
         }
     }
@@ -726,7 +744,6 @@ function SysSim (sso, Ts, state_out = false){
         this.C = numeric.clone(sso.C);
         this.D = numeric.clone(sso.D);
     }
-    console.log(output);
 	this.A = numeric.clone(output['Ad']);
 	this.B = numeric.clone(output['Bd']);
 	this.C = numeric.clone(output['Cd']);
@@ -779,29 +796,21 @@ Order = length of series when doing matrix exponential
 */
 
 function c2d(A,B,C,D,E,Ts=null,order=5){
-    console.log("starting c2d");
     var Einv = numeric.inv(E);
-    console.log(Einv);
     var Aeff = numeric.dot(Einv,A);
     var Beff = numeric.dot(Einv,B);
     var ev = numeric.eig(Aeff);
-    console.log(ev);
     var min_ev = Math.min.apply(null,ev); //find fastest eigenvalue
-    console.log(min_ev);
     if (Ts==null){
         Ts = 0.1*min_ev;  //set timestep to be 0.1 of fastest time step
     }
-    console.log(Aeff);
-    console.log(Beff);
-    console.log(Ts);
-    console.log("starting to build A");
+
     var Ad = numeric.mul(Aeff,Ts);
     var Bd = numeric.mul(Beff,Ts);
     var dim = numeric.dim(Ad)[0];
     var mT = numeric.mul(numeric.identity(dim),-1)
     Ad = numeric.add(Ad,mT);
     var total = numeric.identity(dim);
-    console.log(order);
     for (var i=1; i<order; i++){
         var top = 1;
         for (var j=0; j<i; j++){

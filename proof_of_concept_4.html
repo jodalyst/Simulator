@@ -58,9 +58,11 @@ var plot2;
 
 // window.onload = function(){
 
-var esys = new ss([],[],[]);
+var esys = new ss([[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]],[0,0,1], [1,0,0]);
+console.log(esys.ctrb());
+console.log(esys);
 //Built using more solid Matrix library!!!
-var esysinput = new ssmi(div_id="plotbox",sso=esys,ctdt = "CT",type='ss'); 
+var esysinput = new ssmi(div_id="plotbox",sso=esys,spec=false, ctdt = "CT",type='ss'); 
 
 var sys = new ss([[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]],[0,0,1], [1,0,0]);
 console.log(sys);

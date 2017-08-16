@@ -24,9 +24,6 @@ div_id: specifies the dom div to attach inputs and renders to
 sso: the ss or dss object which you are connecting this input set to
 ctdt: 
 */
-
-
-
 function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     if (ctdt=="DT" && type=="dss"){
         console.log("cannot have discrete time system with E matrix!");
@@ -37,6 +34,9 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     this.element = document.getElementById(div_id);
     this.element.className += "eq_input_area";
     var inputs;
+
+    var ssmio = this;
+
     if (spec){
         inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[x_1,x_2,x_3]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
         \\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_${div_id}" id="y_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
@@ -113,12 +113,15 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
 
     };
 
+    var initial = new Event('keyup');
 
-    this.ourinputs = document.getElementsByClassName(`matrix_input_${div_id}`);
+
+    ssmio.ourinputs = document.getElementsByClassName(`matrix_input_${div_id}`);
     console.log('lets go');
-    console.log(this.ourinputs);
-    for (var i = 0; i< this.ourinputs.length; i++){
-        this.ourinputs[i].addEventListener('keyup', process);
+    console.log(ssmio.ourinputs);
+    for (var i = 0; i< ssmio.ourinputs.length; i++){
+        ssmio.ourinputs[i].addEventListener('keyup', process);
+        ssmio.ourinputs[i].dispatchEvent(initial);
     }
  
 
@@ -403,11 +406,6 @@ function dss(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
 
 
 function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
-    // # of states dictated by A matrix
-    // number of inputs dictated by B matrix
-    // number of outputs dictated by C matrix
-    // everything else must agree
-
     //need to make deep copies of input arrays.
     this.ss = "ss"; //will be "this.ss = dss in dss type...will inform outside functions whether or not to normalize with E matrix"
     this.A = numeric.clone(Ain);
@@ -419,7 +417,7 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
         this.D = numeric.clone(Din);
     }
 
-
+    var ssobj = this;
     this.type = ctdt;
     this.y;
     this.x;
@@ -432,29 +430,32 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     	console.log("Type must be either DT or CT!!!");
     	return false;
     }
-    //checks on matrices!:
 
+
+    //checks on matrices!:
     //used to initialize x, y, and u vectors based off of A, B, and C matrices accordingly
-    var build_numerical_iso = function(){
+    this.build_numerical_iso = function(){
         //x (state vector) setup:
         //x vector filled in based on A matrix dimensions...not B.
-        this.x = [];
-        for (var i=0; i<numeric.dim(this.A)[0]; i++){
-            this.x.push(0);
+        ssobj.x = [];
+        for (var i=0; i<numeric.dim(ssobj.A)[0]; i++){
+            console.log("HIHI");
+            ssobj.x.push(0);
         }
+        console.log(ssobj.x);
         //u (input) setup...based on B matrix dimensions:
-        if (numeric.dim(this.B).length==1){
-            this.u = [0];
+        if (numeric.dim(ssobj.B).length==1){
+            ssobj.u = [0];
         }else{
-            for (var i=0; i<numeric.dim(this.B)[1];i++){
-                this.u.push(0);
+            for (var i=0; i<numeric.dim(ssobj.B)[1];i++){
+                ssobj.u.push(0);
             }
         }
         //y (output) setup:
-        if (numeric.dim(this.C).length==1){
-            this.y = [0];
+        if (numeric.dim(ssobj.C).length==1){
+            ssobj.y = [0];
         }else{
-            for (var i=0; i<numeric.dim(this.C)[0]; i++){
+            for (var i=0; i<numeric.dim(ssobj.C)[0]; i++){
                 y.push(0);
             }
         }
@@ -463,63 +464,78 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     //also ends up building D if it has not been specified/is a null
     this.check_matrix_sizes = function(){
         //A matrix check
-        if (numeric.dim(this.A)[0] != numeric.dim(this.A)[1]){
+        if (numeric.dim(ssobj.A)[0] != numeric.dim(ssobj.A)[1]){
             console.log("A must be square!");
             return false;
         }
 
         //A vs. B matrix dimension setup!
-        if (numeric.dim(this.A)[0] != numeric.dim(this.B)[0]){
+        if (numeric.dim(ssobj.A)[0] != numeric.dim(ssobj.B)[0]){
             console.log("Number of A rows and B rows must agree!");
             return false;
         }
 
         //check C matrix compare against A matrix (source of state vector size)
-        if (numeric.dim(this.C).length==1){
-        	if (numeric.dim(this.C)[0] !== numeric.dim(this.A)[0]){
+        if (numeric.dim(ssobj.C).length==1){
+        	if (numeric.dim(ssobj.C)[0] !== numeric.dim(ssobj.A)[0]){
         		console.log("Number of C cols must agree with number of states");
         		return false;
         	}
         }else{
-        	if (numeric.dim(this.C).length[1] != numeric.dim(this.A)[0]){
+        	if (numeric.dim(ssobj.C).length[1] != numeric.dim(ssobj.A)[0]){
         		console.log("Number of C cols must agree with number of states");
         		return false;
         	}
         }
-        build_numerical_iso(); //set up x, y, and u based off of primary matrices
+        ssobj.build_numerical_iso(); //set up x, y, and u based off of primary matrices
         //is much easier to based D checks off of iso vectors than do the appropriate checks on A,B, and C
         //D matrix checks...annoyingly complex
-        if(this.D === null){
-            this.D = [];
-            for(var i = 0; i<this.y.length; i++){
-                this.
-                for(var j=0; j<this.u.length; j++){
-                    this.
+        console.log(ssobj.y);
+        console.log(ssobj.x);
+        console.log(ssobj.u);
+        if(ssobj.D === null){
+            ssobj.D = [];
+            if (ssobj.y.length==1 && ssobj.u.length==1){
+                ssobj.D.push(0);
+            }else if(ssobj.y.length==1){
+                for(var i = 0; i<ssobj.u.length; i++){
+                    ssobj.D.push(0);
+                }
+            }else if(ssobj.u.length==1){
+                for (var i = 0; i<ssobj.y.length; i++){
+                    ssobj.D.push(0);
+                }
+            }else{
+                for(var i = 0; i<ssobj.y.length; i++){
+                    ssobj.D.push([]);
+                    for(var j=0; j<ssobj.u.length; j++){
+                        ssobj.D[i].push(0);
+                    }
                 }
             }
         }
-    	if (numeric.dim(this.D).length ==1){ //check if a n by 1 or 1 by n matrix
-    		if (numeric.dim(this.y)[0]!=1){ //check with y
-    			if (numeric.dim(this.y)[0] != numeric.dim(this.D)[0]){
+    	if (numeric.dim(ssobj.D).length ==1){ //check if a n by 1 or 1 by n matrix
+    		if (numeric.dim(ssobj.y)[0]!=1){ //check with y
+    			if (numeric.dim(ssobj.y)[0] != numeric.dim(ssobj.D)[0]){
     				console.log("D dimensions not matching with y dimensions");
     				return false;
     			}
-    		}else if(numeric.dim(this.u)[0] != 1){ //check with u
-    			if (numeric.dim(this.u)[0] != numeric.dim(this.D)[0]){
+    		}else if(numeric.dim(ssobj.u)[0] != 1){ //check with u
+    			if (numeric.dim(ssobj.u)[0] != numeric.dim(ssobj.D)[0]){
     				console.log("D dimensions not matching with u dimensions");
     				return false;
     			}
     		}else{
-    			if (numeric.dim(this.D)[0] !=1){
+    			if (numeric.dim(ssobj.D)[0] !=1){
     				console.log("Error in D dimensions [should be 1 by 1]");
     				return false;
     			}
     		}
     	}else{
-    		if (numeric.dim(this.D)[0] != numeric.dim(this.y)[0]){
+    		if (numeric.dim(ssobj.D)[0] != numeric.dim(ssobj.y)[0]){
     			console.log("Error! D matrix dimensions do not agree with y matrix dimensions");
     			return false;
-    		}if (numeric.dim(this.D)[1] != numeric.dim(this.u)[0]){
+    		}if (numeric.dim(ssobj.D)[1] != numeric.dim(ssobj.u)[0]){
     			console.log("Error! D matrix dimensions do not agree with u matrix dimensions");
     			return false;
     		}
@@ -529,50 +545,69 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     }
 
     this.standardize_sym_iso = function(){  //iso stands for inputs, states, outputs.
-        for(var i=0; i<this.x.length;i++){
-            if (this.type=="CT"){
-                this.x_rep.push(`x_${i+1}`);
-                this.x_repn.push(`x_${i+1}`);
+        for(var i=0; i<ssobj.x.length;i++){
+            if (ssobj.type=="CT"){
+                ssobj.x_rep.push(`x_${i+1}`);
+                ssobj.x_repn.push(`x_${i+1}`);
             }else{
-                this.x_rep.push(`x_${i+1}[n]`);
-                this.x_repn.push(`x_${i+1}[n+1]`);
+                ssobj.x_rep.push(`x_${i+1}[n]`);
+                ssobj.x_repn.push(`x_${i+1}[n+1]`);
             }
         }
-        if (this.y.length==1){
-            this.y_rep.push("y");
+        if (ssobj.y.length==1){
+            ssobj.y_rep.push("y");
         }else{
-            for (var i=0; i<this.y.length;i++){
-                if (this.type=="CT"){
-                    this.y_rep.push(`y_${i+1}`);
+            for (var i=0; i<ssobj.y.length;i++){
+                if (ssobj.type=="CT"){
+                    ssobj.y_rep.push(`y_${i+1}`);
                 }else{
-                    this.y_rep.push(`y_${i+1}[n]`);
+                    ssobj.y_rep.push(`y_${i+1}[n]`);
                 }
             }
         }
-        if (this.u.length==1){
-            this.u_rep.push("u");
+        if (ssobj.u.length==1){
+            ssobj.u_rep.push("u");
         }else{
-            for (var i=0; i<this.u.length;i++){
-                if (this.type=="CT"){
-                    this.y_rep.push(`u_${i+1}`);
+            for (var i=0; i<ssobj.u.length;i++){
+                if (ssobj.type=="CT"){
+                    ssobj.y_rep.push(`u_${i+1}`);
                 }else{
-                    this.y_rep.push(`u_${i+1}[n]`);
+                    ssobj.y_rep.push(`u_${i+1}[n]`);
                 }
             }
         }
     }
+    this.check_sym_iso = function(){
+        if (ssobj.x_rep.length != ssobj.x.length){
+            console.log("x length off!")
+            return false;
+        }
+        if (ssobj.y_rep.length != ssobj.y.length){
+            console.log("y length off!")
+            return false;
+        }
+        if (ssobj.u_rep.length != ssobj.u.length){
+            console.log("u length off!")
+            return false;
+        }
+        //all good.!!
+        return true;
+
+    }
+
+    //initialization
     this.check_matrix_sizes();
-    build_numerical_iso();
+    this.build_numerical_iso();
     this.standardize_sym_iso();
 
     this.isCT = function(){
-    	return this.type == "CT";
+    	return ssobj.type == "CT";
     }
 
     this.isStable = function(){
-    	setup = this.poles();
+    	setup = ssobj.poles();
     	for (var i = 0; i<setup.length; i++){
-    		if (this.isCT()){
+    		if (ssobj.isCT()){
     			if (setup[i]>0){
     				return false;
     			}
@@ -587,23 +622,23 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     }
 
     this.poles = function(){
-        return numeric.eig(this.A);
+        return numeric.eig(ssobj.A);
     } 
 
     this.zeros = function(){
     }
     this.ctrb = function(){
-        var n = this.A.length;
+        var n = ssobj.A.length;
         var builder = [];
         for (var i = 0; i<n; i++){
             if (i==0){
-                builder.push(this.B);
+                builder.push(ssobj.B);
             }else{
-                var starter = numeric.clone(this.A);
+                var starter = numeric.clone(ssobj.A);
                 for (var j = 0; j< i; j++){
-                    starter = numeric.dot(starter,this.A);
+                    starter = numeric.dot(starter,ssobj.A);
                 }
-                starter = numeric.dot(starter,this.B);
+                starter = numeric.dot(starter,ssobj.B);
                 //should we clone here?
                 builder.push(numeric.clone(starter));
             }
@@ -613,15 +648,15 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
 
     }
     this.obsv = function(){
-    	var n = this.A.length;
+    	var n = ssobj.A.length;
         var O = [];
         for (var i = 0; i<n; i++){
             if (i==0){
-                builder.push(this.C);
+                builder.push(ssobj.C);
             }else{
-                var starter = numeric.clone(this.C);
+                var starter = numeric.clone(ssobj.C);
                 for (var j = 0; j< i; j++){
-                    starter = numeric.dot(starter,this.A);
+                    starter = numeric.dot(starter,ssobj.A);
                 }
                 builder.push(starter);
             }
@@ -633,26 +668,44 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     this.update = function(matrix,value){
         switch(matrix){
             case "A":
-                this.A = numeric.clone(value);
+                ssobj.A = numeric.clone(value);
                 break;
             case "B":
-                this.B = numeric.clone(value);
+                ssobj.B = numeric.clone(value);
                 break;
             case "C":
-                this.C = numeric.clone(value);
+                ssobj.C = numeric.clone(value);
                 break;
             case "D":
-                this.D = numeric.clone(value);
+                ssobj.D = numeric.clone(value);
                 break;
             case "x":
-                this.x_rep = value;
+                if(ssobj.isCT()){
+                    ssobj.x_rep = value;
+                    ssobj.x_repn = value;
+                }else{
+                    ssobj.x_rep = [];
+                    ssobj.x_repn = [];
+                    for (var i=0; i<value.length; i++){
+                        ssobj.x_rep.push(value[i]+'[n]');
+                        ssobj.x_rep.push(value[i]+'[n]');
+                    }
+                }
                 break;
             case "y":
-                this.y_rep = value;
+                ssobj.y_rep = value;
                 break;
             case "u":
-                this.u_rep = value;
+                ssobj.u_rep = value;
                 break;
+        }
+        var abcd_good = ssobj.check_matrix_sizes();
+        var xyu_good = ssobj.check_sym_iso();
+        if (abcd_good && xyu_good){
+            return true;
+        }else{
+            console.log("issue!!!");
+            return false;
         }
     }
 
@@ -840,6 +893,8 @@ Based off of  eigenvalues of normalized A matrix
 Matrix Exponential for Bd calculated using series...order of sum can be specified...set to 5 for default.
 Order = length of series when doing matrix exponential
 */
+
+//NEED TO UPDATE AND FIX THIS FUNCTION...IS NOT UP TO DATE RIGHT NOW.
 
 function c2d(A,B,C,D,E,Ts=null,order=5){
     var Einv = numeric.inv(E);

@@ -1,23 +1,4 @@
 
-var xc = [0,0,0];
-var Ec = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
-var Ac = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
-var Bc = [0,0,1];
-var Cc = [1,0,0];
-
-console.log(Cc.length);
-if (Cc[0].length == null){
-    console.log("dimension one");
-}
-
-var u = 1;
-var y = [0];
-
-var x_next = [0,0,0];
-var x = [0,0,0];
-var Ad = [[1, 0.01, 0],[0,0.5,0.1],[0,0,0.1]];
-var Bd = [0,0,1];
-var Cd = [1,0,0];
 
 /*Specify inputs to create these on the fly
 div_id: specifies the dom div to attach inputs and renders to
@@ -30,7 +11,6 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
         return false;
     }
     var sso = sso;
-    console.log(sso);
     this.element = document.getElementById(div_id);
     this.element.className += "eq_input_area";
     var inputs;
@@ -55,14 +35,11 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     var displays = `<div class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}" class="matrix_to_render"></p><p id="displayed_eq2_${div_id}"class="matrix_to_render"></p></center></div>`;
 
     this.element.innerHTML = inputs+displays;
-    console.log(sso);
 
     var process = function(){
         var matrix = this.id[0];
-        console.log(matrix);
         vals = this.value;
         vals = vals.replace(' ', '');
-        console.log(sso);
         if (matrix ==="x" || matrix==="y" || matrix==="u"){
             vals = vals.replace('[','').replace(']','').split(',');
             var tempm = [];
@@ -74,7 +51,6 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
             try{
                 mat = eval(vals);
                 console.log("new mtarix");
-                console.log(mat);
                 sso.update(matrix,mat);
             }catch(err){
                 console.log("not a full matrix");
@@ -101,8 +77,7 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
         bottom += render_matrix(sso.D,"D");
         bottom += render_matrix(sso.u_rep,"u");
         bottom+="$$";
-        console.log("A matrix");
-        console.log(sso.A);
+
         if (matrix=="A"||matrix=="B"||matrix=="x"||matrix=="u"){
             document.getElementById('displayed_eq1_'+div_id).innerHTML = top;
             MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq1_${div_id}`]);
@@ -117,8 +92,6 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
 
 
     ssmio.ourinputs = document.getElementsByClassName(`matrix_input_${div_id}`);
-    console.log('lets go');
-    console.log(ssmio.ourinputs);
     for (var i = 0; i< ssmio.ourinputs.length; i++){
         ssmio.ourinputs[i].addEventListener('keyup', process);
         ssmio.ourinputs[i].dispatchEvent(initial);
@@ -439,10 +412,8 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
         //x vector filled in based on A matrix dimensions...not B.
         ssobj.x = [];
         for (var i=0; i<numeric.dim(ssobj.A)[0]; i++){
-            console.log("HIHI");
             ssobj.x.push(0);
         }
-        console.log(ssobj.x);
         //u (input) setup...based on B matrix dimensions:
         if (numeric.dim(ssobj.B).length==1){
             ssobj.u = [0];
@@ -490,9 +461,6 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
         ssobj.build_numerical_iso(); //set up x, y, and u based off of primary matrices
         //is much easier to based D checks off of iso vectors than do the appropriate checks on A,B, and C
         //D matrix checks...annoyingly complex
-        console.log(ssobj.y);
-        console.log(ssobj.x);
-        console.log(ssobj.u);
         if(ssobj.D === null){
             ssobj.D = [];
             if (ssobj.y.length==1 && ssobj.u.length==1){
@@ -688,15 +656,29 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
                     ssobj.x_repn = [];
                     for (var i=0; i<value.length; i++){
                         ssobj.x_rep.push(value[i]+'[n]');
-                        ssobj.x_rep.push(value[i]+'[n]');
+                        ssobj.x_repn.push(value[i]+'[n+1]');
                     }
                 }
                 break;
             case "y":
-                ssobj.y_rep = value;
+                if(ssobj.isCT()){
+                    ssobj.y_rep = value;
+                }else{
+                    ssobj.y_rep = [];
+                    for (var i=0; i<value.length; i++){
+                        ssobj.y_rep.push(value[i]+'[n]');
+                    }
+                }
                 break;
             case "u":
-                ssobj.u_rep = value;
+                if(ssobj.isCT()){
+                    ssobj.u_rep = value;
+                }else{
+                    ssobj.u_rep = [];
+                    for (var i=0; i<value.length; i++){
+                        ssobj.u_rep.push(value[i]+'[n]');
+                    }
+                }
                 break;
         }
         var abcd_good = ssobj.check_matrix_sizes();
@@ -704,7 +686,7 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
         if (abcd_good && xyu_good){
             return true;
         }else{
-            console.log("issue!!!");
+            console.log("issue!!! with matrix sizes!");
             return false;
         }
     }
@@ -780,7 +762,6 @@ function isZero(element, index, array) {
 } 
 function rank(M){
     var R = rref(M);
-    console.log(R);
     var cols = R[0].length;
     var rows = R.length;
     var count = cols;
@@ -830,7 +811,6 @@ function rref(Y){
 };
 
 function SysSim (sso, Ts, state_out = false){
-    console.log(sso);
     if (sso.type=='CT'){
 	   var output = c2d(sso.A,sso.B,sso.C,sso.D,sso.E,Ts);
         this.A = numeric.clone(output['Ad']);

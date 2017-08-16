@@ -4,17 +4,33 @@
     margin: 30px 30px 30px 30px;
   }*/
 
+.eq_input_area{
+  border-radius: 5px;
+  border: 1px solid #5180a2;
+  width: 100%;
+  padding: 10px;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
 .eq_display_area{
-    background-color: #90d0ff;
-    border-radius: 5px;
+    /*background-color: white;*/
+    /*border-radius: 5px;*/
     /*border: 1px solid #5180a2;*/
-    box-shadow: 5px 5px 5px grey;
+    /*box-shadow: 5px 5px 5px grey;*/
     width: 100%;
     padding: 10px;
     margin-top: 25px;
     margin-bottom: 25px;
 }
-  
+
+.matrix_to_render{
+  width: 100%;
+  padding: 10px;
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
 .sim_area{
     border: 1px solid;
     padding: 10px;
@@ -31,6 +47,6 @@
   display:block;
 }
 
-.matrix{
+.matrix_input{
     width: 300px;
 }

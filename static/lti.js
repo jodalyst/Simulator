@@ -35,18 +35,7 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     var sso = sso;
     console.log(sso);
     this.element = document.getElementById(div_id);
-    // var inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[[x_1],[x_2],[x_3]]" name="x_input_${div_id}" id="x_input_${div_id}" class="matrix" maxlength="100" /><br></br>;
-    // inputs += `\\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_input_${div_id}" id="y_input_${div_id}" class="matrix" maxlength="100" /><br></br>;
-    // inputs += `\\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_input_${div_id}" id="u_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
-    // inputs += `</p><p>';
-    // if (type=='dss')inputs += '\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,4,0],[0,0,1]]" name="E_input_${div_id}" id="E_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
-    // inputs+= '\\(\\textbf{A}\\): <input type="text" size="50" value="[[1,0,2],[5,4,2],[0,0,1]]" name="A_input_${div_id}" id="A_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
-    // inputs += '\\(\\textbf{B}\\): <input type="text" size="50" value="[[1],[5],[6]]" name="B_input_${div_id}" id="B_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
-    // inputs += '\\(\\textbf{C}\\): <input type="text" size="50" value="[[1,0,3]]" name="C_input_${div_id}" id="C_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
-    // inputs += '\\(\\textbf{D}\\): <input type="text" size="50" value="[[0]]" name="D_input_${div_id}" id="D_input_${div_id}" class="matrix" maxlength="100" /><br></br>';
-    // inputs += '</center></p>';
-
-    // var displays = '<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>';
+    this.element.className += "eq_input_area";
     var inputs;
     if (spec){
         inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[x_1,x_2,x_3]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
@@ -63,7 +52,7 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     \\(\\textbf{D}\\): <input type="text" size="50" value="[0]" name="D_${div_id}" id="D_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     </center></p>`;
 
-    var displays = `<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>`;
+    var displays = `<div class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}" class="matrix_to_render"></p><p id="displayed_eq2_${div_id}"class="matrix_to_render"></p></center></div>`;
 
     this.element.innerHTML = inputs+displays;
     console.log(sso);
@@ -193,6 +182,10 @@ function SS_Matrix_Input_Box(div_id,discrete = "CT",type='ss'){
 Basic object to contain/house/represent a state space object
 This does not handle simulation, which is a different thing entirely...this lists attributes of the system itself
 */
+
+function feedback(sso,gain= null){
+
+}
 
 function dss(Ain,Bin, Cin,Din=null,Ein=null,typein = "CT"){
     // # of states dictated by A matrix
@@ -416,10 +409,17 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     // everything else must agree
 
     //need to make deep copies of input arrays.
+    this.ss = "ss"; //will be "this.ss = dss in dss type...will inform outside functions whether or not to normalize with E matrix"
     this.A = numeric.clone(Ain);
     this.B = numeric.clone(Bin);
     this.C = numeric.clone(Cin);
-    this.D;
+    if (Din == null){
+        this.D = null;
+    }else{
+        this.D = numeric.clone(Din);
+    }
+
+
     this.type = ctdt;
     this.y;
     this.x;
@@ -432,54 +432,72 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     	console.log("Type must be either DT or CT!!!");
     	return false;
     }
-    //checks on matrices!:  
-    if (numeric.dim(this.A)[0] != numeric.dim(this.A)[1]){
-        console.log("A must be square!");
-        return false;
-    }
+    //checks on matrices!:
 
-    //A vs. B matrix dimension setup!
-    if (numeric.dim(this.A)[0] != numeric.dim(this.B)[0]){
-        console.log("Number of A rows and B rows must agree!");
-        return false;
+    //used to initialize x, y, and u vectors based off of A, B, and C matrices accordingly
+    var build_numerical_iso = function(){
+        //x (state vector) setup:
+        //x vector filled in based on A matrix dimensions...not B.
+        this.x = [];
+        for (var i=0; i<numeric.dim(this.A)[0]; i++){
+            this.x.push(0);
+        }
+        //u (input) setup...based on B matrix dimensions:
+        if (numeric.dim(this.B).length==1){
+            this.u = [0];
+        }else{
+            for (var i=0; i<numeric.dim(this.B)[1];i++){
+                this.u.push(0);
+            }
+        }
+        //y (output) setup:
+        if (numeric.dim(this.C).length==1){
+            this.y = [0];
+        }else{
+            for (var i=0; i<numeric.dim(this.C)[0]; i++){
+                y.push(0);
+            }
+        }
     }
-    //x (state vector) setup:
-    //x vector filled in based on A matrix dimensions...not B.
-    this.x = [];
-    for (var i=0; i<numeric.dim(this.A)[0]; i++){
-    	this.x.push(0);
-    }
-    //u (input) setup:
-    if (numeric.dim(this.B).length==1){
-    	this.u = [0];
-    }else{
-    	for (var i=0; i<numeric.dim(this.B)[1];i++){
-    		this.u.push(0);
-    	}
-    }
-    //y (output) setup:
-    if (numeric.dim(this.C).length==1){
-    	this.y = [0];
-        console.log(numeric.dim(this.C)[0]);
-        console.log(numeric.dim(this.x)[0]);
-    	if (numeric.dim(this.C)[0] !== numeric.dim(this.x)[0]){
-    		console.log("Number of C cols must agree with number of states");
-    		return false;
-    	}
-    }else{
-    	if (numeric.dim(this.C).length[1] != numeric.dim(this.x)[0]){
-    		console.log("Number of C cols must agree with number of states");
-    		return false;
-    	}
-    	for (var i=0; i<numeric.dim(this.C)[0]; i++){
-    		y.push(0);
-    	}
-    }
-    //D matrix checks...annoyingly complex
-    if (Din == null){
-    	this.D = numeric.diag(this.u.length);
-    }else{
-    	this.D = numeric.clone(Din);
+    //checks to make sure that the matrices are internally consistent with one another.
+    //also ends up building D if it has not been specified/is a null
+    this.check_matrix_sizes = function(){
+        //A matrix check
+        if (numeric.dim(this.A)[0] != numeric.dim(this.A)[1]){
+            console.log("A must be square!");
+            return false;
+        }
+
+        //A vs. B matrix dimension setup!
+        if (numeric.dim(this.A)[0] != numeric.dim(this.B)[0]){
+            console.log("Number of A rows and B rows must agree!");
+            return false;
+        }
+
+        //check C matrix compare against A matrix (source of state vector size)
+        if (numeric.dim(this.C).length==1){
+        	if (numeric.dim(this.C)[0] !== numeric.dim(this.A)[0]){
+        		console.log("Number of C cols must agree with number of states");
+        		return false;
+        	}
+        }else{
+        	if (numeric.dim(this.C).length[1] != numeric.dim(this.A)[0]){
+        		console.log("Number of C cols must agree with number of states");
+        		return false;
+        	}
+        }
+        build_numerical_iso(); //set up x, y, and u based off of primary matrices
+        //is much easier to based D checks off of iso vectors than do the appropriate checks on A,B, and C
+        //D matrix checks...annoyingly complex
+        if(this.D === null){
+            this.D = [];
+            for(var i = 0; i<this.y.length; i++){
+                this.
+                for(var j=0; j<this.u.length; j++){
+                    this.
+                }
+            }
+        }
     	if (numeric.dim(this.D).length ==1){ //check if a n by 1 or 1 by n matrix
     		if (numeric.dim(this.y)[0]!=1){ //check with y
     			if (numeric.dim(this.y)[0] != numeric.dim(this.D)[0]){
@@ -506,42 +524,51 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     			return false;
     		}
     	}
+        //made it through the gauntlet ! huzzah!
+        return true;
     }
-    for(var i=0; i<this.x.length;i++){
-        if (this.type=="CT"){
-            this.x_rep.push(`x_${i+1}`);
-            this.x_repn.push(`x_${i+1}`);
+
+    this.standardize_sym_iso = function(){  //iso stands for inputs, states, outputs.
+        for(var i=0; i<this.x.length;i++){
+            if (this.type=="CT"){
+                this.x_rep.push(`x_${i+1}`);
+                this.x_repn.push(`x_${i+1}`);
+            }else{
+                this.x_rep.push(`x_${i+1}[n]`);
+                this.x_repn.push(`x_${i+1}[n+1]`);
+            }
+        }
+        if (this.y.length==1){
+            this.y_rep.push("y");
         }else{
-            this.x_rep.push(`x_${i+1}[n]`);
-            this.x_repn.push(`x_${i+1}[n+1]`);
+            for (var i=0; i<this.y.length;i++){
+                if (this.type=="CT"){
+                    this.y_rep.push(`y_${i+1}`);
+                }else{
+                    this.y_rep.push(`y_${i+1}[n]`);
+                }
+            }
         }
-    }
-    if (this.y.length==1){
-        this.y_rep.push("y");
-    }else{
-        for (var i=0; i<this.y.length;i++){
-            if (this.type=="CT"){
-                this.y_rep.push(`y_${i+1}`);
-            }else{
-                this.y_rep.push(`y_${i+1}[n]`);
+        if (this.u.length==1){
+            this.u_rep.push("u");
+        }else{
+            for (var i=0; i<this.u.length;i++){
+                if (this.type=="CT"){
+                    this.y_rep.push(`u_${i+1}`);
+                }else{
+                    this.y_rep.push(`u_${i+1}[n]`);
+                }
             }
         }
     }
-    if (this.u.length==1){
-        this.u_rep.push("u");
-    }else{
-        for (var i=0; i<this.u.length;i++){
-            if (this.type=="CT"){
-                this.y_rep.push(`u_${i+1}`);
-            }else{
-                this.y_rep.push(`u_${i+1}[n]`);
-            }
-        }
-    }
+    this.check_matrix_sizes();
+    build_numerical_iso();
+    this.standardize_sym_iso();
 
     this.isCT = function(){
     	return this.type == "CT";
     }
+
     this.isStable = function(){
     	setup = this.poles();
     	for (var i = 0; i<setup.length; i++){
@@ -799,7 +826,7 @@ function SysSim (sso, Ts, state_out = false){
 
 
 
-function acker(A, B, E= null, lambda){
+function acker(A, B, lambda){
 
 
 }

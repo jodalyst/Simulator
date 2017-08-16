@@ -15,6 +15,8 @@ Stylistically, the structure of <a href="http://sylvester.jcoglan.com/api/matrix
 Javascript prevents/does not allow operator overloading so we'll never be able to conveniently add to matrices as you can in Python or MATLAB...no solution there ever.
 
 
+The entire library uses pure javascript otherwise (avoids the use of jQuery although it is definitely compatible with it if desired).
+
 ### Objects/Prototypes/Methods:
 
 #### `SS(Ain, Bin, Cin, Din=null, Ein=null, typein = "CT")`: The basic value

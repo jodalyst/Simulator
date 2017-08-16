@@ -24,6 +24,22 @@ div_id: specifies the dom div to attach inputs and renders to
 sso: the ss or dss object which you are connecting this input set to
 ctdt: 
 */
+var myFunction = function(arg){
+    var matrix = arg.id[0];
+    console.log("shit");
+    vals = arg.value;
+    vals = vals.replace(' ', '');
+    try{
+        mat = eval(vals);
+        console.log(vals);
+        //sso.update(matrix,vals);
+    }catch(err){
+        console.log("not a full matrix");
+        //sso.update(matrix,[]);
+    }
+}
+
+
 function ssmi(div_id,sso,ctdt = "CT",type='ss'){
     if (ctdt=="DT" && type=="dss"){
         console.log("cannot have discrete time system with E matrix!");
@@ -43,7 +59,7 @@ function ssmi(div_id,sso,ctdt = "CT",type='ss'){
 
     // var displays = '<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>';
 
-    var inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[[x_1],[x_2],[x_3]]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+    var inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[[x_1],[x_2],[x_3]]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" onkeypress="myFunction(this)" maxlength="100" /><br></br>
     \\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_${div_id}" id="y_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     \\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_${div_id}" id="u_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     </p><p>`;
@@ -56,25 +72,29 @@ function ssmi(div_id,sso,ctdt = "CT",type='ss'){
 
     var displays = '<span class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}"></p><p id="displayed_eq2_${div_id}"></p></center></span>';
 
-
-
-
     this.element.innerHTML = inputs+displays;
-
-    this.ourinputs = document.getElementsByClassName(`matrix_input_${div_id}`);
-    this.ourinputs.onclick= function(){
+    var process = function(){
         var matrix = this.id[0];
         console.log("shit");
-        vals = this.val();
+        vals = this.value;
         vals = vals.replace(' ', '');
-        try{
-            mat = eval(vals);
-            sso.update(matrix,vals);
-        }catch(err){
-            console.log("not a full matrix");
-            sso.update(matrix,[]);
-        }
+        //mat = eval(vals);
+        sso.update(matrix,vals);
+        // }catch(err){
+        //     console.log("not a full matrix");
+        //     sso.update(matrix,[]);
+        // }
     };
+
+
+    this.ourinputs = document.getElementsByClassName(`matrix_input_${div_id}`);
+    console.log('lets go');
+    console.log(this.ourinputs);
+    for (var i = 0; i< this.ourinputs.length; i++){
+        this.ourinputs[i].addEventListener('keypress', process);
+    }
+    //this.ourinputs.addEventListener('keypress', 
+
 
     // this.update = function(type){
     //     var vals = document.getElementById(this.div_id+"_"+type+"_input").val();
@@ -88,6 +108,34 @@ function ssmi(div_id,sso,ctdt = "CT",type='ss'){
 
 
 };
+
+var ourinputs = document.getElementsByClassName(`matrix_input`);
+ourinputs.onclick= function(){
+    var matrix = this.id[0];
+    console.log("shit");
+    vals = this.val();
+    vals = vals.replace(' ', '');
+    try{
+        mat = eval(vals);
+        sso.update(matrix,vals);
+    }catch(err){
+        console.log("not a full matrix");
+        sso.update(matrix,[]);
+    }
+};
+
+// document.body.onclick = function (e) {
+//     console.log("hey");
+//     e = window.event || e;
+//     //get target dom object reference
+//     var targetDomObject = e.target || e.srcElement;
+
+//     //extra checks to make sure object exists and contains the class of interest
+//     if ((targetDomObject) && (targetDomObject.classList) && (targetDomObject.classList.contains("matrix_input"))) {
+//         var number = targetDomObject.getAttribute("data-number");
+//         console.log(number);
+//     }
+// }
 
 
 

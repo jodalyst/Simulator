@@ -79,13 +79,15 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
         }else{
             try{
                 mat = eval(vals);
-                sso.update(matrix,vals);
+                console.log("new mtarix");
+                console.log(mat);
+                sso.update(matrix,mat);
             }catch(err){
                 console.log("not a full matrix");
                 sso.update(matrix,[]);
             }
         }
-        var top = "";
+        var top = "$$";
         if(type==='dss') top +=render_matrix(sso.E,sso.E.length,sso.E[0].length);
         top+=render_matrix(sso.x_repn,"x");
         if(ctdt==="CT") top += "\\cdot\\frac{d}{dt}";
@@ -95,7 +97,8 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
         top += "+";
         top+=render_matrix(sso.B,"B");
         top+=render_matrix(sso.u_rep,"u");
-        var bottom = "";
+        top +="$$";
+        var bottom = "$$";
         bottom += render_matrix(sso.y_rep,"y");
         bottom += "=";
         bottom += render_matrix(sso.C,"C");
@@ -103,6 +106,9 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
         bottom += "+";
         bottom += render_matrix(sso.D,"D");
         bottom += render_matrix(sso.u_rep,"u");
+        bottom+="$$";
+        console.log("A matrix");
+        console.log(sso.A);
         document.getElementById('displayed_eq1_'+div_id).innerHTML = top;
         document.getElementById('displayed_eq2_'+div_id).innerHTML = bottom;
         MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq1_${div_id}`]);
@@ -114,7 +120,7 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     console.log('lets go');
     console.log(this.ourinputs);
     for (var i = 0; i< this.ourinputs.length; i++){
-        this.ourinputs[i].addEventListener('keypress', process);
+        this.ourinputs[i].addEventListener('keyup', process);
     }
  
 

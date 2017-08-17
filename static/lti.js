@@ -5,7 +5,9 @@ div_id: specifies the dom div to attach inputs and renders to
 sso: the ss or dss object which you are connecting this input set to
 ctdt: 
 */
-function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
+
+//MUST ADD DESCRIPTOR CHECKER ON TYPE!!!
+function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
     if (ctdt=="DT" && type=="dss"){
         console.log("cannot have discrete time system with E matrix!");
         return false;
@@ -13,7 +15,7 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     var sso = sso;
     this.element = document.getElementById(div_id);
     this.element.className += "eq_input_area";
-    var inputs;
+    var inputs="";
 
     var ssmio = this;
 
@@ -23,15 +25,17 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
     \\(\\textbf{C}\\): <input type="text" size="50" value="[1,2,3]" name="C_${div_id}" id="C_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     \\(\\textbf{D}\\): <input type="text" size="50" value="[0]" name="D_${div_id}" id="D_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     </p>`;
-    if (type=='dss')inputs += `\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,1,0],[0,0,1]]" name="E_${div_id}" id="E_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>`;
+    if (sso.type=='dss')inputs += `\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,1,0],[0,0,1]]" name="E_${div_id}" id="E_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>`;
 
 
-    if (spec){
+    if (spec_iso){
         inputs += `<p>\\(\\textbf{x}\\): <input type="text" size="50" value="[x_1,x_2,x_3]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
         \\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_${div_id}" id="y_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
         \\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_${div_id}" id="u_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
         </p><p>`;
     }
+    inputs+=`<button type="button" id="update_${div_id}">Check & Update</button></p>`;
+    inputs+=`<div id="error_text_${div_id}"></div>`;
     inputs+="</center>";
 
     var displays = `<div class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}" class="matrix_to_render"></p><p id="displayed_eq2_${div_id}"class="matrix_to_render"></p></center></div>`;
@@ -90,19 +94,72 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
 
     };
 
-    var initial = new Event('keyup');
+    var grab_input = function(input_obj){
+        var matrix = input_obj.id[0];
+        vals = input_obj.value;
+        vals = vals.replace(' ', '');
+        if (matrix ==="x" || matrix==="y" || matrix==="u"){
+            vals = vals.replace('[','').replace(']','').split(',');
+            var tempm = [];
+            for(var i =0; i<vals.length;i++){
+                tempm.push(vals[i]);
+            }
+            sso.update(matrix,tempm);
+        }else{
+            try{
+                mat = eval(vals);
+                console.log("new mtarix");
+                sso.update(matrix,mat);
+            }catch(err){
+                console.log("not a full matrix");
+                sso.update(matrix,[]);
+            }
+        }
+    }
 
 
     ssmio.ourinputs = document.getElementsByClassName(`matrix_input_${div_id}`);
-    for (var i = 0; i< ssmio.ourinputs.length; i++){
-        ssmio.ourinputs[i].addEventListener('keyup', process);
-        ssmio.ourinputs[i].dispatchEvent(initial);
+
+    var process_all_inputs = function(){
+        for (var i=0; i<ssmio.ourinputs.length;i++){
+            grab_input(ssmio.ourinputs[i]);
+        }
+        var top = "$$";
+        if(type==='dss') top +=render_matrix(sso.E,sso.E.length,sso.E[0].length);
+        top+=render_matrix(sso.x_repn,"x");
+        if(ctdt==="CT") top += "\\cdot\\frac{d}{dt}";
+        top += "=";
+        top+=render_matrix(sso.A,"A");
+        top+=render_matrix(sso.x_rep,"x");
+        top += "+";
+        top+=render_matrix(sso.B,"B");
+        top+=render_matrix(sso.u_rep,"u");
+        top +="$$";
+        var bottom = "$$";
+        bottom += render_matrix(sso.y_rep,"y");
+        bottom += "=";
+        bottom += render_matrix(sso.C,"C");
+        bottom+=render_matrix(sso.x_rep,"x");
+        bottom += "+";
+        bottom += render_matrix(sso.D,"D");
+        bottom += render_matrix(sso.u_rep,"u");
+        bottom+="$$";
+        document.getElementById('displayed_eq1_'+div_id).innerHTML = top;
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq1_${div_id}`]);
+        document.getElementById('displayed_eq2_'+div_id).innerHTML = bottom;
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq2_${div_id}`]);
     }
- 
+    //var initial = new Event('keyup');
 
-
+    document.getElementById(`update_${div_id}`).addEventListener('click',process_all_inputs)
+    // for (var i = 0; i< ssmio.ourinputs.length; i++){
+    //     ssmio.ourinputs[i].addEventListener('keyup', process);
+    //     ssmio.ourinputs[i].dispatchEvent(initial);
+    // }
 };
 
+
+//function difference_equation_input(div_id, sso, spec=false)
 
 
 function render_matrix(matrix,type){

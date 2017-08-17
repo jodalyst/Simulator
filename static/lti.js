@@ -17,20 +17,22 @@ function ssmi(div_id,sso,spec=false, ctdt = "CT",type='ss'){
 
     var ssmio = this;
 
-    if (spec){
-        inputs = `<p><center>\\(\\textbf{x}\\): <input type="text" size="50" value="[x_1,x_2,x_3]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-        \\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_${div_id}" id="y_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-        \\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_${div_id}" id="u_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-        </p><p>`;
-    }else{
-        inputs = "<p><center>";
-    }
-    if (type=='dss')inputs += `\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,1,0],[0,0,1]]" name="E_${div_id}" id="E_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>`;
+    inputs +="<center>"
     inputs+= `\\(\\textbf{A}\\): <input type="text" size="50" value="[[1,0,2],[5,4,2],[0,0,1]]" name="A_${div_id}" id="A_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     \\(\\textbf{B}\\): <input type="text" size="50" value="[1,2,3]" name="B_${div_id}" id="B_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     \\(\\textbf{C}\\): <input type="text" size="50" value="[1,2,3]" name="C_${div_id}" id="C_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
     \\(\\textbf{D}\\): <input type="text" size="50" value="[0]" name="D_${div_id}" id="D_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
-    </center></p>`;
+    </p>`;
+    if (type=='dss')inputs += `\\(\\textbf{E}\\): <input type="text" size="50" value="[[1,0,0],[0,1,0],[0,0,1]]" name="E_${div_id}" id="E_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>`;
+
+
+    if (spec){
+        inputs += `<p>\\(\\textbf{x}\\): <input type="text" size="50" value="[x_1,x_2,x_3]" name="x_${div_id}" id="x_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+        \\(\\textbf{y}\\): <input type="text" size="50" value="[\\theta]" name="y_${div_id}" id="y_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+        \\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_${div_id}" id="u_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
+        </p><p>`;
+    }
+    inputs+="</center>";
 
     var displays = `<div class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}" class="matrix_to_render"></p><p id="displayed_eq2_${div_id}"class="matrix_to_render"></p></center></div>`;
 

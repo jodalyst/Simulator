@@ -25,11 +25,12 @@
 }
 
 .error_zone{
-    background-color: #eebbbb;
-    border-radius: 0.5em;
+    /*background-color: #eebbbb;*/
+    /*border-radius: 0.5em;*/
     /*border: 1px solid #9F001D;*/
     /*box-shadow: 0.5em 0.5em 0.5em grey;*/
-    width: 100%;
+    color: red;
+    width: 60%;
     padding: 0.5em;
     margin-top: 2em;
 }

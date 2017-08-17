@@ -35,7 +35,7 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
         </p><p>`;
     }
     inputs+=`<button type="button" class="update_button" id="update_${div_id}">Check & Update</button></p>`;
-    inputs+=`<div class="error_zone" id="error_text_${div_id}">STUFF STUFF</div>`;
+    inputs+=`<div class="error_zone" id="error_text_${div_id}"></div>`;
     inputs+="</center>";
 
     var displays = `<div class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}" class="matrix_to_render"></p><p id="displayed_eq2_${div_id}"class="matrix_to_render"></p></center></div>`;
@@ -105,14 +105,18 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
                 tempm.push(vals[i]);
             }
             sso.update(matrix,tempm);
+            return [true,""];
         }else{
             try{
                 mat = eval(vals);
                 console.log("new mtarix");
                 sso.update(matrix,mat);
+                return [true,""];
+
             }catch(err){
                 console.log("not a full matrix");
                 sso.update(matrix,[]);
+                return [false,`${matrix} matrix input has syntax error`]
             }
         }
     }
@@ -121,8 +125,34 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
     ssmio.ourinputs = document.getElementsByClassName(`matrix_input_${div_id}`);
 
     var process_all_inputs = function(){
+        var errors = [];
         for (var i=0; i<ssmio.ourinputs.length;i++){
-            grab_input(ssmio.ourinputs[i]);
+            var out = grab_input(ssmio.ourinputs[i]);
+            if (out[0]==false) errors.push(out[1]);
+        }
+        var mat_check = sso.check_matrix_sizes();
+        var symiso_check = sso.check_sym_iso();
+        if (errors!==[] || !mat_check[0] || !symiso_check[0]){
+            var error_log = "<ul>";
+            for (var i = 0; i<errors.length;i++){
+                error_log += "<li>";
+                error_log += errors[i];
+                error_log +="</li>";
+            }
+            if (!mat_check[0]){
+                error_log += "<li>";
+                error_log += mat_check[1];
+                error_log +="</li>";
+            }
+            if (!symiso_check[0]){
+                error_log += "<li>";
+                error_log += symiso_check[1];
+                error_log +="</li>";
+            }
+            error_log +="</ul>";
+            document.getElementById(`error_text_${div_id}`).innerHTML=error_log;
+        }else{
+            document.getElementById(`error_text_${div_id}`).innerHTML=null;
         }
         var top = "$$";
         if(type==='dss') top +=render_matrix(sso.E,sso.E.length,sso.E[0].length);
@@ -494,26 +524,22 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     this.check_matrix_sizes = function(){
         //A matrix check
         if (numeric.dim(ssobj.A)[0] != numeric.dim(ssobj.A)[1]){
-            console.log("A must be square!");
-            return false;
+            return [false,"A must be square!"];
         }
 
         //A vs. B matrix dimension setup!
         if (numeric.dim(ssobj.A)[0] != numeric.dim(ssobj.B)[0]){
-            console.log("Number of A rows and B rows must agree!");
-            return false;
+            return [false,"Number of A rows and B rows must agree!"];
         }
 
         //check C matrix compare against A matrix (source of state vector size)
         if (numeric.dim(ssobj.C).length==1){
         	if (numeric.dim(ssobj.C)[0] !== numeric.dim(ssobj.A)[0]){
-        		console.log("Number of C cols must agree with number of states");
-        		return false;
+        		return [false,"Number of C cols must agree with number of A cols"];
         	}
         }else{
         	if (numeric.dim(ssobj.C).length[1] != numeric.dim(ssobj.A)[0]){
-        		console.log("Number of C cols must agree with number of states");
-        		return false;
+        		return [false,"Number of C cols must agree with number of A cols"];
         	}
         }
         ssobj.build_numerical_iso(); //set up x, y, and u based off of primary matrices
@@ -543,31 +569,26 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     	if (numeric.dim(ssobj.D).length ==1){ //check if a n by 1 or 1 by n matrix
     		if (numeric.dim(ssobj.y)[0]!=1){ //check with y
     			if (numeric.dim(ssobj.y)[0] != numeric.dim(ssobj.D)[0]){
-    				console.log("D dimensions not matching with y dimensions");
-    				return false;
+    				return [false,"D dimensions not matching with y dimensions"];
     			}
     		}else if(numeric.dim(ssobj.u)[0] != 1){ //check with u
     			if (numeric.dim(ssobj.u)[0] != numeric.dim(ssobj.D)[0]){
-    				console.log("D dimensions not matching with u dimensions");
-    				return false;
+    				return [false,"D dimensions not matching with u dimensions"];
     			}
     		}else{
     			if (numeric.dim(ssobj.D)[0] !=1){
-    				console.log("Error in D dimensions [should be 1 by 1]");
-    				return false;
+    				return [false,"Error in D dimensions [should be 1 by 1]"];
     			}
     		}
     	}else{
     		if (numeric.dim(ssobj.D)[0] != numeric.dim(ssobj.y)[0]){
-    			console.log("Error! D matrix dimensions do not agree with y matrix dimensions");
-    			return false;
+    			return [false,"Error! D matrix dimensions do not agree with y matrix dimensions"];
     		}if (numeric.dim(ssobj.D)[1] != numeric.dim(ssobj.u)[0]){
-    			console.log("Error! D matrix dimensions do not agree with u matrix dimensions");
-    			return false;
+    			return [false,"Error! D matrix dimensions do not agree with u matrix dimensions"];
     		}
     	}
         //made it through the gauntlet ! huzzah!
-        return true;
+        return [true,""];
     }
 
     this.standardize_sym_iso = function(){  //iso stands for inputs, states, outputs.
@@ -605,19 +626,17 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     }
     this.check_sym_iso = function(){
         if (ssobj.x_rep.length != ssobj.x.length){
-            console.log("x length off!")
-            return false;
+            return [false,`specified symbolic x length incorrect! Must agree with A, B, and C matrces! Should be ${ssobj.x.length} long`];
         }
         if (ssobj.y_rep.length != ssobj.y.length){
-            console.log("y length off!")
-            return false;
+            return [false,`specified symbolic y length incorrect! Must agree with A, B, and C matrces! Should be ${ssobj.y.length} long`];
         }
         if (ssobj.u_rep.length != ssobj.u.length){
             console.log("u length off!")
-            return false;
+            return [false, `specified symbolic u length incorrect! Must agree with A, B, and C matrices! Should be ${ssobj.u.length} long`];
         }
         //all good.!!
-        return true;
+        return [true,""];
 
     }
 

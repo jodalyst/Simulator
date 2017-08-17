@@ -34,8 +34,8 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
         \\(\\textbf{u}\\): <input type="text" size="50" value="[v_i]" name="u_${div_id}" id="u_${div_id}" class="matrix_input_${div_id}" maxlength="100" /><br></br>
         </p><p>`;
     }
-    inputs+=`<button type="button" id="update_${div_id}">Check & Update</button></p>`;
-    inputs+=`<div id="error_text_${div_id}"></div>`;
+    inputs+=`<button type="button" class="update_button" id="update_${div_id}">Check & Update</button></p>`;
+    inputs+=`<div class="error_zone" id="error_text_${div_id}">STUFF STUFF</div>`;
     inputs+="</center>";
 
     var displays = `<div class="eq_display_area" style="display:block;"><center><p id="displayed_eq1_${div_id}" class="matrix_to_render"></p><p id="displayed_eq2_${div_id}"class="matrix_to_render"></p></center></div>`;
@@ -448,7 +448,6 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     }else{
         this.D = numeric.clone(Din);
     }
-
     var ssobj = this;
     this.type = ctdt;
     this.y;

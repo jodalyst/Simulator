@@ -24,6 +24,31 @@
     margin-bottom: 25px;
 }
 
+.error_zone{
+    background-color: #eebbbb;
+    border-radius: 0.5em;
+    /*border: 1px solid #9F001D;*/
+    /*box-shadow: 0.5em 0.5em 0.5em grey;*/
+    width: 100%;
+    padding: 0.5em;
+    margin-top: 2em;
+}
+
+button.update_button{
+  /*font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;*/
+  font-weight:500;
+  text-transform: uppercase;
+  border-radius: .5em;
+  padding: 1em;
+  margin: 1em;
+  border: none;
+  background-color: #bfe4ba;
+}
+
+button:hover {
+    filter: brightness(1.05);
+}
+
 .matrix_to_render{
   width: 100%;
   padding: 10px;

@@ -808,23 +808,34 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     }
 
     this.display = function(matrix){
+        var output;
         switch(matrix){
             case "A":
-                var x=5;
+                output = render_matrix(ssobj.A,"A");
                 break;
             case "B":
+                output = render_matrix(ssobj.B,"B");
                 break;
             case "C":
+                output = render_matrix(ssobj.C,"C");
                 break;
             case "D":
+                output = render_matrix(ssobj.D,"D");
                 break;
             case "x":
+                output = render_matrix(ssobj.x_rep,"x");
+                break;
+            case "xn":
+                output = render_matrix(ssobj.x_repn,"x");
                 break;
             case "y":
+                output = render_matrix(ssobj.y_rep,"y");
                 break;
             case "u":
+                output = render_matrix(ssobj.u_rep,"u");
                 break;
         }
+        return output;
 
     }
     this.display_all = function(mode=ss){
@@ -833,14 +844,37 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
         var C = this.display("C");
         var D = this.display("D");
         var x = this.display("x");
+        var xn = this.display("xn");
         var y = this.display("y");
         var u = this.display("u");
+
+        var top = "$$";
+        //if(type==='dss') top +=render_matrix(sso.E,sso.E.length,sso.E[0].length);
+        top+=xn
+        if(ssobj.ctdt==="CT") top += "\\cdot\\frac{d}{dt}";
+        top += "=";
+        top+=A;
+        top+=x;
+        top += "+";
+        top+=B;
+        top+=u;
+        top +="$$";
+        var bottom = "$$";
+        bottom += y;
+        bottom += "=";
+        bottom += C;
+        bottom+= x;
+        if (sso.D.length==1 && sso.D[0]==0){
+            var x=5; //pass!
+        }else{
+            bottom += "+";
+            bottom += D;
+            bottom += u;
+        }
+        bottom+="$$";
     }
 }
 
-/*render_matrix takes in a matrix and row, column dimensions, which are
-mainly used to clarify ambiguity of how row and column vectors are stored
-identically in the numeric.js format */
 
 
 function feedback (sso, K){

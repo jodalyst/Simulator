@@ -63,6 +63,9 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
 
             }catch(err){
                 console.log("not a full matrix");
+                console.log(mat);
+                console.log(vals);
+                console.log(err);
                 sso.update(matrix,[]);
                 return [false,`${matrix} matrix input has syntax error`]
             }
@@ -469,7 +472,7 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
             ssobj.y = [0];
         }else{
             for (var i=0; i<numeric.dim(ssobj.C)[0]; i++){
-                y.push(0);
+                ssobj.y.push(0);
             }
         }
     }
@@ -488,11 +491,13 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
 
         //check C matrix compare against A matrix (source of state vector size)
         if (numeric.dim(ssobj.C).length==1){
+            console.log("1d C");
         	if (numeric.dim(ssobj.C)[0] !== numeric.dim(ssobj.A)[0]){
         		return [false,"Number of C cols must agree with number of A cols"];
         	}
         }else{
-        	if (numeric.dim(ssobj.C).length[1] != numeric.dim(ssobj.A)[0]){
+            console.log("2d C");
+        	if (numeric.dim(ssobj.C)[1] != numeric.dim(ssobj.A)[0]){
         		return [false,"Number of C cols must agree with number of A cols"];
         	}
         }

@@ -16,7 +16,7 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
     this.element = document.getElementById(div_id);
     this.element.className += "eq_input_area";
     var inputs="";
-
+    console.log(sso);
     var ssmio = this;
 
     inputs +=""
@@ -41,57 +41,6 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
 
     this.element.innerHTML = inputs+displays;
 
-    var process = function(){
-        var matrix = this.id[0];
-        vals = this.value;
-        vals = vals.replace(' ', '');
-        if (matrix ==="x" || matrix==="y" || matrix==="u"){
-            vals = vals.replace('[','').replace(']','').split(',');
-            var tempm = [];
-            for(var i =0; i<vals.length;i++){
-                tempm.push(vals[i]);
-            }
-            sso.update(matrix,tempm);
-        }else{
-            try{
-                mat = eval(vals);
-                console.log("new mtarix");
-                sso.update(matrix,mat);
-            }catch(err){
-                console.log("not a full matrix");
-                sso.update(matrix,[]);
-            }
-        }
-        var top = "$$";
-        if(type==='dss') top +=render_matrix(sso.E,sso.E.length,sso.E[0].length);
-        top+=render_matrix(sso.x_repn,"x");
-        if(ctdt==="CT") top += "\\cdot\\frac{d}{dt}";
-        top += "=";
-        top+=render_matrix(sso.A,"A");
-        top+=render_matrix(sso.x_rep,"x");
-        top += "+";
-        top+=render_matrix(sso.B,"B");
-        top+=render_matrix(sso.u_rep,"u");
-        top +="$$";
-        var bottom = "$$";
-        bottom += render_matrix(sso.y_rep,"y");
-        bottom += "=";
-        bottom += render_matrix(sso.C,"C");
-        bottom+=render_matrix(sso.x_rep,"x");
-        bottom += "+";
-        bottom += render_matrix(sso.D,"D");
-        bottom += render_matrix(sso.u_rep,"u");
-        bottom+="$$";
-
-        if (matrix=="A"||matrix=="B"||matrix=="x"||matrix=="u"){
-            document.getElementById('displayed_eq1_'+div_id).innerHTML = top;
-            MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq1_${div_id}`]);
-        }if(matrix=="C"||matrix=="D"||matrix=="x"||matrix=="y"||matrix=="u"){
-            document.getElementById('displayed_eq2_'+div_id).innerHTML = bottom;
-            MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq2_${div_id}`]);
-        }
-
-    };
 
     var grab_input = function(input_obj){
         var matrix = input_obj.id[0];
@@ -130,8 +79,7 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
             if (out[0]==false) errors.push(out[1]);
         }
         var mat_check = sso.check_matrix_sizes();
-        var symiso_check = sso.check_sym_iso();
-        if (errors!==[] || !mat_check[0] || !symiso_check[0]){
+        if (errors!==[] || !mat_check[0]){
             var error_log = "<ul>";
             for (var i = 0; i<errors.length;i++){
                 error_log += "<li>";
@@ -141,11 +89,6 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
             if (!mat_check[0]){
                 error_log += "<li>";
                 error_log += mat_check[1];
-                error_log +="</li>";
-            }
-            if (!symiso_check[0]){
-                error_log += "<li>";
-                error_log += symiso_check[1];
                 error_log +="</li>";
             }
             error_log +="</ul>";
@@ -169,14 +112,19 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
         bottom += "=";
         bottom += render_matrix(sso.C,"C");
         bottom+=render_matrix(sso.x_rep,"x");
-        bottom += "+";
-        bottom += render_matrix(sso.D,"D");
-        bottom += render_matrix(sso.u_rep,"u");
+        console.log(sso.D);
+        if (sso.D !=[0]){
+            console.log("diff");
+            bottom += "+";
+            bottom += render_matrix(sso.D,"D");
+            bottom += render_matrix(sso.u_rep,"u");
+        }
         bottom+="$$";
         document.getElementById('displayed_eq1_'+div_id).innerHTML = top;
         MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq1_${div_id}`]);
         document.getElementById('displayed_eq2_'+div_id).innerHTML = bottom;
         MathJax.Hub.Queue(["Typeset",MathJax.Hub,`#displayed_eq2_${div_id}`]);
+        console.log(sso);
     }
     //var initial = new Event('keyup');
 
@@ -216,7 +164,10 @@ function render_matrix(matrix,type){
                 display_string +="&";
             }
         }
-    }else{
+    }else if (type ==="D" && numeric.dim(matrix).length==1){
+
+    }
+    else{ //non-vector matrix
         if (numeric.dim(matrix).length==1 && numeric.dim(matrix)[0]==1){
             display_string+=String(matrix[0]);
         }else{
@@ -486,6 +437,8 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     this.x_repn = []; //next x rep
     this.y_rep  = []; //y rep
     this.u_rep = []; //u rep
+
+    this.external_sym = [false,false,false];  //flag used for learning if symbolics (iso) are provided externally
     if (ctdt != "CT" && ctdt != "DT"){
     	console.log("Type must be either DT or CT!!!");
     	return false;
@@ -502,6 +455,7 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
             ssobj.x.push(0);
         }
         //u (input) setup...based on B matrix dimensions:
+        ssobj.u = [];
         if (numeric.dim(ssobj.B).length==1){
             ssobj.u = [0];
         }else{
@@ -510,6 +464,7 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
             }
         }
         //y (output) setup:
+        ssobj.y=[];
         if (numeric.dim(ssobj.C).length==1){
             ssobj.y = [0];
         }else{
@@ -542,6 +497,8 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
         	}
         }
         ssobj.build_numerical_iso(); //set up x, y, and u based off of primary matrices
+        ssobj.standardize_sym_iso();
+
         //is much easier to based D checks off of iso vectors than do the appropriate checks on A,B, and C
         //D matrix checks...annoyingly complex
         if(ssobj.D === null){
@@ -587,10 +544,12 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     		}
     	}
         //made it through the gauntlet ! huzzah!
-        return [true,""];
+        return ssobj.check_sym_iso();
     }
 
-    this.standardize_sym_iso = function(){  //iso stands for inputs, states, outputs.
+    this.standardize_sym_x = function(){
+        ssobj.x_rep = [];
+        ssobj.x_repn = [];
         for(var i=0; i<ssobj.x.length;i++){
             if (ssobj.type=="CT"){
                 ssobj.x_rep.push(`x_${i+1}`);
@@ -600,6 +559,9 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
                 ssobj.x_repn.push(`x_${i+1}[n+1]`);
             }
         }
+    }
+    this.standardize_sym_y = function(){
+        ssobj.y_rep = [];
         if (ssobj.y.length==1){
             ssobj.y_rep.push("y");
         }else{
@@ -611,18 +573,29 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
                 }
             }
         }
+    }
+    this.standardize_sym_u = function(){
+        ssobj.u_rep = [];
         if (ssobj.u.length==1){
             ssobj.u_rep.push("u");
         }else{
             for (var i=0; i<ssobj.u.length;i++){
                 if (ssobj.type=="CT"){
-                    ssobj.y_rep.push(`u_${i+1}`);
+                    ssobj.u_rep.push(`u_${i+1}`);
                 }else{
-                    ssobj.y_rep.push(`u_${i+1}[n]`);
+                    ssobj.u_rep.push(`u_${i+1}[n]`);
                 }
             }
         }
+
     }
+
+    this.standardize_sym_iso = function(){  //iso stands for inputs, states, outputs.
+        if(!ssobj.external_sym[1]) ssobj.standardize_sym_x();
+        if(!ssobj.external_sym[2]) ssobj.standardize_sym_y();
+        if(!ssobj.external_sym[0]) ssobj.standardize_sym_u();
+    }
+
     this.check_sym_iso = function(){
         if (ssobj.x_rep.length != ssobj.x.length){
             return [false,`Specified symbolic x length incorrect! Must agree with A, B, and C matrces! Should be ${ssobj.x.length} long`];
@@ -713,17 +686,26 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
         switch(matrix){
             case "A":
                 ssobj.A = numeric.clone(value);
+                ssobj.build_numerical_iso();
                 break;
             case "B":
                 ssobj.B = numeric.clone(value);
+                ssobj.build_numerical_iso();
                 break;
             case "C":
                 ssobj.C = numeric.clone(value);
+                ssobj.build_numerical_iso();
                 break;
             case "D":
                 ssobj.D = numeric.clone(value);
                 break;
             case "x":
+                if (value === [""]){
+                    ssobj.external_sym[1] = false;
+                    console.log("empty x");
+                    break;
+                }
+                ssobj.external_sym[1] = true;
                 if(ssobj.isCT()){
                     ssobj.x_rep = value;
                     ssobj.x_repn = value;
@@ -737,6 +719,12 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
                 }
                 break;
             case "y":
+                if (value === [""]){
+                    ssobj.external_sym[2] = false;
+                    console.log("empty y");
+                    break;
+                }
+                ssobj.external_sym[2] = true;
                 if(ssobj.isCT()){
                     ssobj.y_rep = value;
                 }else{
@@ -747,6 +735,12 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
                 }
                 break;
             case "u":
+                if (value === [""]){
+                    ssobj.external_sym[0] = false;
+                    console.log("empty u");
+                    break;
+                }
+                ssobj.external_sym[0] = true;
                 if(ssobj.isCT()){
                     ssobj.u_rep = value;
                 }else{
@@ -759,6 +753,7 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
         }
         var abcd_good = ssobj.check_matrix_sizes();
         var xyu_good = ssobj.check_sym_iso();
+        //console.log(ssobj);
         if (abcd_good && xyu_good){
             return true;
         }else{
@@ -836,6 +831,7 @@ Where there is rank loss tells us where zeros are...how to search for that?  Not
 function isZero(element, index, array) { 
   return element == 0; 
 } 
+
 function rank(M){
     var R = rref(M);
     var cols = R[0].length;

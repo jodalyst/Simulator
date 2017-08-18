@@ -115,11 +115,16 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
         bottom += "=";
         bottom += render_matrix(sso.C,"C");
         bottom+=render_matrix(sso.x_rep,"x");
-        console.log(sso.D);
-        if (sso.D !=[0]){
-            console.log("diff");
+        if (sso.D.length==1 && sso.D[0]==0){
+            var x=5; //pass!
+        }else{
+            // console.log("diff");
+            // console.log(sso.D);
+            // console.log([0]);
+            // console.log(sso.D ==[0]);
+            // console.log(sso.D ===[0]);
             bottom += "+";
-            bottom += render_matrix(sso.D,"D");
+            bottom += render_matrix(sso.D,"D",sso);
             bottom += render_matrix(sso.u_rep,"u");
         }
         bottom+="$$";
@@ -142,7 +147,7 @@ function ssmi(div_id,sso,spec_iso=false, ctdt = "CT",type='ss'){
 //function difference_equation_input(div_id, sso, spec=false)
 
 
-function render_matrix(matrix,type){
+function render_matrix(matrix,type, ssobj=null){
     // if (c==1 && matrix.length != r) return "";
     // if (r==1 && matrix.length != c) return "";
     var display_string = "\\begin{bmatrix}";
@@ -167,10 +172,38 @@ function render_matrix(matrix,type){
                 display_string +="&";
             }
         }
-    }else if (type ==="D" && numeric.dim(matrix).length==1){
-
-    }
-    else{ //non-vector matrix
+    }else if (type ==="D"){
+        console.log('dd');
+        if (ssobj.y.length==1 && ssobj.u.length==1){
+            display_string += String(matrix[0]);
+        }else if(ssobj.y.length==1){ //u is greater than 1 (so must be hor vector)
+            for (var i=0; i<matrix.length; i++){
+                display_string += String(matrix[i]);
+                if (i < matrix.length-1){
+                    display_string +="&";
+                }
+            }
+        }else if(ssobj.u.length==1){ //y is greater than 1 (so must be vert)
+            for (var i=0; i<matrix.length; i++){
+                display_string += String(matrix[i]);
+                if (i < matrix.length-1){
+                    display_string +="\\\\";
+                }
+            }
+        }else{
+            for (var i=0; i<matrix.length; i++){
+                for (var j=0; j<matrix[i].length;j++){
+                    display_string += String(matrix[i][j]);
+                    if (j < matrix[i].length-1){
+                        display_string +="&";
+                    }
+                }
+                if (i < matrix.length-1){
+                    display_string +="\\\\";
+                }
+            }
+        }
+    }else{ //non-vector matrix
         if (numeric.dim(matrix).length==1 && numeric.dim(matrix)[0]==1){
             display_string+=String(matrix[0]);
         }else{
@@ -528,15 +561,22 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
             }
         }
     	if (numeric.dim(ssobj.D).length ==1){ //check if a n by 1 or 1 by n matrix
-    		if (numeric.dim(ssobj.y)[0]!=1){ //check with y
+    		if (numeric.dim(ssobj.y)[0]!=1 && numeric.dim(ssobj.u)[0]==1){ //check with y
     			if (numeric.dim(ssobj.y)[0] != numeric.dim(ssobj.D)[0]){
     				return [false,"D dimensions not matching with y dimensions"];
     			}
-    		}else if(numeric.dim(ssobj.u)[0] != 1){ //check with u
+    		}else if(numeric.dim(ssobj.u)[0] != 1 && numeric.dim(ssobj.y)[0]==1){ //check with u
     			if (numeric.dim(ssobj.u)[0] != numeric.dim(ssobj.D)[0]){
     				return [false,"D dimensions not matching with u dimensions"];
     			}
-    		}else{
+    		}else if(numeric.dim(ssobj.u)[0] != 1 && numeric.dim(ssobj.y)[0]!=1){
+                if (numeric.dim(ssobj.u)[0] != numeric.dim(ssobj.D)[1]){
+                    return [false,"D dimensions not matching with u dimensions"];
+                }
+                if (numeric.dim(ssobj.y)[0] != numeric.dim(ssobj.D)[0]){
+                    return [false,"D dimensions not matching with y dimensions"];
+                }
+            }else{
     			if (numeric.dim(ssobj.D)[0] !=1){
     				return [false,"Error in D dimensions [should be 1 by 1]"];
     			}

@@ -12,9 +12,16 @@
   margin-top: 25px;
   margin-bottom: 25px;
   display: flex;
+  display: -webkit-flex;
+   display: flex;
+   -webkit-flex-direction: column;
   flex-direction:column;
   flex-wrap: wrap;
   justify-content: center;
+    -webkit-align-items: center;
+   align-items: center;
+   -webkit-justify-content: center;
+   justify-content: center;
 }
 
 .eq_display_area{
@@ -29,7 +36,9 @@
     /*display:block;*/
 }
 
-
+.gen_input{
+  padding: 0.1em;
+}
 .error_zone{
     /*background-color: #eebbbb;*/
     /*border-radius: 0.5em;*/

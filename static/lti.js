@@ -625,14 +625,14 @@ function ss(Ain,Bin, Cin,Din=null,ctdt = "CT"){
     }
     this.check_sym_iso = function(){
         if (ssobj.x_rep.length != ssobj.x.length){
-            return [false,`specified symbolic x length incorrect! Must agree with A, B, and C matrces! Should be ${ssobj.x.length} long`];
+            return [false,`Specified symbolic x length incorrect! Must agree with A, B, and C matrces! Should be ${ssobj.x.length} long`];
         }
         if (ssobj.y_rep.length != ssobj.y.length){
-            return [false,`specified symbolic y length incorrect! Must agree with A, B, and C matrces! Should be ${ssobj.y.length} long`];
+            return [false,`Specified symbolic y length incorrect! Must agree with A, B, and C matrces! Should be ${ssobj.y.length} long`];
         }
         if (ssobj.u_rep.length != ssobj.u.length){
             console.log("u length off!")
-            return [false, `specified symbolic u length incorrect! Must agree with A, B, and C matrices! Should be ${ssobj.u.length} long`];
+            return [false, `Specified symbolic u length incorrect! Must agree with A, B, and C matrices! Should be ${ssobj.u.length} long`];
         }
         //all good.!!
         return [true,""];
